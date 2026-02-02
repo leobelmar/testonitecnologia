@@ -1,5 +1,7 @@
-import { ArrowRight, Shield, Clock, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Shield, Clock, CheckCircle, User } from 'lucide-react';
 import logoBranco from '@/assets/logo-branco.png';
+
 const highlights = [{
   icon: Shield,
   text: 'Desde 2011'
@@ -10,10 +12,12 @@ const highlights = [{
   icon: Clock,
   text: 'Suporte Emergencial'
 }];
+
 export function Hero() {
-  return <section id="home" className="relative min-h-screen flex items-center overflow-hidden" style={{
-    background: 'var(--gradient-hero)'
-  }}>
+  return (
+    <section id="home" className="relative min-h-screen flex items-center overflow-hidden" style={{
+      background: 'var(--gradient-hero)'
+    }}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10 bg-secondary-foreground">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent" />
@@ -23,8 +27,8 @@ export function Hero() {
       {/* Animated Circles */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-white/5 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{
-      animationDelay: '1s'
-    }} />
+        animationDelay: '1s'
+      }} />
 
       <div className="container-width section-padding relative z-10 pt-32">
         <div className="max-w-4xl">
@@ -42,32 +46,43 @@ export function Hero() {
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl text-white/80 max-w-2xl mb-8 animate-slide-up" style={{
-          animationDelay: '0.1s'
-        }}>
+            animationDelay: '0.1s'
+          }}>
             Soluções completas em infraestrutura, segurança, comunicação e suporte empresarial em Balneário Camboriú e região.
           </p>
 
           {/* Highlights */}
           <div className="flex flex-wrap gap-4 mb-10 animate-slide-up" style={{
-          animationDelay: '0.2s'
-        }}>
-            {highlights.map((item, index) => <div key={index} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+            animationDelay: '0.2s'
+          }}>
+            {highlights.map((item, index) => (
+              <div key={index} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
                 <item.icon className="h-5 w-5 text-white/90" />
                 <span className="text-sm font-medium text-white/90">{item.text}</span>
-              </div>)}
+              </div>
+            ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 animate-slide-up" style={{
-          animationDelay: '0.3s'
-        }}>
-            <a href="https://wa.me/5547992858578" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-white text-navy-deep px-8 py-4 rounded-lg font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl">
+            animationDelay: '0.3s'
+          }}>
+            <a 
+              href="https://wa.me/5547992858578" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center justify-center gap-2 bg-white text-navy-deep px-8 py-4 rounded-lg font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
               Fale Conosco Agora
               <ArrowRight className="h-5 w-5" />
             </a>
-            <a href="#servicos" className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-lg font-medium hover:bg-white/20 transition-all duration-200">
-              Conheça Nossos Serviços
-            </a>
+            <Link 
+              to="/auth" 
+              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-lg font-medium hover:bg-white/20 transition-all duration-200"
+            >
+              <User className="h-5 w-5" />
+              Portal do Cliente
+            </Link>
           </div>
         </div>
 
@@ -80,5 +95,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }

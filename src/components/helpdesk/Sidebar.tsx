@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Building2,
+  Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -55,6 +56,12 @@ const navItems: NavItem[] = [
     href: '/app/financeiro',
     icon: DollarSign,
     roles: ['admin', 'financeiro', 'cliente'],
+  },
+  {
+    title: 'Técnicos',
+    href: '/app/tecnicos',
+    icon: Wrench,
+    roles: ['admin'],
   },
   {
     title: 'Usuários',

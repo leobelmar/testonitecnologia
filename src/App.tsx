@@ -18,8 +18,11 @@ import Chamados from "./pages/Chamados";
 import NovoChamado from "./pages/NovoChamado";
 import ChamadoDetalhes from "./pages/ChamadoDetalhes";
 import OrdensServico from "./pages/OrdensServico";
+import NovaOS from "./pages/NovaOS";
+import OSDetalhes from "./pages/OSDetalhes";
 import Financeiro from "./pages/Financeiro";
 import Usuarios from "./pages/Usuarios";
+import Tecnicos from "./pages/Tecnicos";
 
 const queryClient = new QueryClient();
 
@@ -45,8 +48,11 @@ const App = () => (
               <Route path="chamados/novo" element={<NovoChamado />} />
               <Route path="chamados/:id" element={<ChamadoDetalhes />} />
               <Route path="ordens-servico" element={<OrdensServico />} />
+              <Route path="ordens-servico/nova" element={<NovaOS />} />
+              <Route path="ordens-servico/:id" element={<OSDetalhes />} />
               <Route path="financeiro" element={<Financeiro />} />
               <Route path="usuarios" element={<Usuarios />} />
+              <Route path="tecnicos" element={<Tecnicos />} />
             </Route>
 
             {/* 404 */}
