@@ -1,9 +1,7 @@
 import { MapPin, Phone, Clock, MessageCircle } from 'lucide-react';
 import logoAzul from '@/assets/logo-azul.png';
-
 export function Contact() {
-  return (
-    <section id="contato" className="section-padding bg-silver">
+  return <section id="contato" className="section-padding bg-silver">
       <div className="container-width">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -30,8 +28,8 @@ export function Contact() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">Endereço</h3>
-                <p className="text-muted-foreground">
-                  Avenida Santa Amaro, 1749 — Marina Belmar<br />
+                <p className="text-muted-foreground">Avenida Santa Amaro, 1749 — Marina Belmar
+ Camboriú — SC<br />
                   Balneário Camboriú — SC
                 </p>
               </div>
@@ -44,10 +42,7 @@ export function Contact() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">Telefone / Emergência</h3>
-                <a
-                  href="tel:+5547992858578"
-                  className="text-accent hover:underline font-medium"
-                >
+                <a href="tel:+5547992858578" className="text-accent hover:underline font-medium">
                   (47) 99285-8578
                 </a>
               </div>
@@ -60,20 +55,15 @@ export function Contact() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">Horário de Atendimento</h3>
-                <p className="text-muted-foreground">
-                  Segunda a Sexta: 8h às 18h<br />
+                <p className="text-muted-foreground">Segunda a Sexta: 8h às 18h
+Sábado e Domingo: Conforme plano<br />
                   Sábado: Conforme plano
                 </p>
               </div>
             </div>
 
             {/* WhatsApp CTA */}
-            <a
-              href="https://wa.me/5547992858578"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#20BD5A] transition-all duration-200 shadow-lg"
-            >
+            <a href="https://wa.me/5547992858578" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#20BD5A] transition-all duration-200 shadow-lg">
               <MessageCircle className="h-6 w-6" />
               Atendimento Rápido via WhatsApp
             </a>
@@ -81,19 +71,12 @@ export function Contact() {
 
           {/* Map */}
           <div className="card-premium overflow-hidden h-[400px] lg:h-auto">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3555.875520647657!2d-48.63534772494682!3d-26.990533876608!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94d8b5c6c60d6e13%3A0x6b90be4c00000000!2sAv.%20Santa%20Amaro%2C%201749%20-%20Balne%C3%A1rio%20Cambori%C3%BA%2C%20SC!5e0!3m2!1spt-BR!2sbr!4v1706000000000!5m2!1spt-BR!2sbr"
-              width="100%"
-              height="100%"
-              style={{ border: 0, minHeight: '400px' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Localização Testoni Tecnologia"
-            />
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3555.875520647657!2d-48.63534772494682!3d-26.990533876608!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94d8b5c6c60d6e13%3A0x6b90be4c00000000!2sAv.%20Santa%20Amaro%2C%201749%20-%20Balne%C3%A1rio%20Cambori%C3%BA%2C%20SC!5e0!3m2!1spt-BR!2sbr!4v1706000000000!5m2!1spt-BR!2sbr" width="100%" height="100%" style={{
+            border: 0,
+            minHeight: '400px'
+          }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Localização Testoni Tecnologia" />
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }
