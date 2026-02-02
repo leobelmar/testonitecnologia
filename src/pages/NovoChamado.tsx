@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import NovoClienteDialog from '@/components/clientes/NovoClienteDialog';
 
 const TIPOS_CHAMADO = [
   'Problema de acesso',
@@ -175,25 +176,37 @@ export default function NovoChamado() {
               <Label htmlFor="cliente">Cliente *</Label>
               {loadingClientes ? (
                 <p className="text-sm text-muted-foreground">Carregando...</p>
-              ) : clientes.length === 1 ? (
+              ) : clientes.length === 1 && !isAdmin ? (
                 <Input
                   value={clientes[0].nome_empresa}
                   disabled
                   className="bg-muted"
                 />
               ) : (
-                <Select value={clienteId} onValueChange={setClienteId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clientes.map((cliente) => (
-                      <SelectItem key={cliente.id} value={cliente.id}>
-                        {cliente.nome_empresa}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={clienteId} onValueChange={setClienteId}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Selecione o cliente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clientes.map((cliente) => (
+                        <SelectItem key={cliente.id} value={cliente.id}>
+                          {cliente.nome_empresa}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {isAdmin && (
+                    <NovoClienteDialog
+                      onClienteCreated={(novoCliente) => {
+                        setClientes((prev) => [...prev, novoCliente].sort((a, b) => 
+                          a.nome_empresa.localeCompare(b.nome_empresa)
+                        ));
+                        setClienteId(novoCliente.id);
+                      }}
+                    />
+                  )}
+                </div>
               )}
             </div>
 
