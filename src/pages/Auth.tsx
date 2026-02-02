@@ -119,14 +119,8 @@ export default function Auth() {
       }
     }
 
-    if (!inviteToken) {
-      toast({
-        title: 'Convite necessário',
-        description: 'Você precisa de um convite para se registrar. Solicite ao administrador.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // Permitir cadastro sem token para o primeiro admin
+    // Após criar o admin, essa verificação pode ser restaurada
 
     setIsLoading(true);
     const { error } = await signUp(registerEmail, registerPassword, registerNome, inviteToken);
@@ -178,7 +172,7 @@ export default function Auth() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register" disabled={!inviteToken}>
+              <TabsTrigger value="register">
                 Registrar
               </TabsTrigger>
             </TabsList>
