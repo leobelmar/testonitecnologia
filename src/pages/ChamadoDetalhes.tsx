@@ -24,7 +24,9 @@ import {
   Send,
   Loader2,
   AlertTriangle,
+  Printer,
 } from 'lucide-react';
+import { PrintDialog } from '@/components/PrintDialog';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -289,6 +291,27 @@ export default function ChamadoDetalhes() {
           </div>
           <p className="text-lg text-muted-foreground mt-1">{chamado.titulo}</p>
         </div>
+        <PrintDialog
+          data={{
+            type: 'chamado',
+            numero: chamado.numero,
+            titulo: chamado.titulo,
+            descricao: chamado.descricao,
+            prioridade: chamado.prioridade,
+            status: chamado.status,
+            data_abertura: chamado.data_abertura,
+            cliente_nome: chamado.cliente?.nome_empresa,
+            cliente_telefone: chamado.cliente?.telefone,
+            cliente_email: chamado.cliente?.email,
+            tipo: chamado.tipo,
+          }}
+          trigger={
+            <Button variant="outline">
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
+          }
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
