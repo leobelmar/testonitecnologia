@@ -165,6 +165,33 @@ export default function Usuarios() {
     return { style: styles[role], label: labels[role] };
   };
 
+  const handleRoleChange = async (userId: string, newRole: AppRole) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      setUsuarios((prev) =>
+        prev.map((u) => (u.user_id === userId ? { ...u, role: newRole } : u))
+      );
+
+      toast({
+        title: 'Sucesso',
+        description: 'Permissão do usuário atualizada.',
+      });
+    } catch (error: any) {
+      console.error('Erro ao atualizar role:', error);
+      toast({
+        title: 'Erro',
+        description: error.message || 'Não foi possível atualizar a permissão.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -264,7 +291,7 @@ export default function Usuarios() {
                   </TableHeader>
                   <TableBody>
                     {usuarios.map((usuario) => {
-                      const role = getRoleBadge(usuario.role);
+                      const isCurrentUser = usuario.user_id === user?.id;
                       return (
                         <TableRow key={usuario.id}>
                           <TableCell>
@@ -284,7 +311,23 @@ export default function Usuarios() {
                           </TableCell>
                           <TableCell>{usuario.email}</TableCell>
                           <TableCell>
-                            <Badge className={role.style}>{role.label}</Badge>
+                            <Select
+                              value={usuario.role}
+                              onValueChange={(value: AppRole) =>
+                                handleRoleChange(usuario.user_id, value)
+                              }
+                              disabled={isCurrentUser}
+                            >
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="admin">Administrador</SelectItem>
+                                <SelectItem value="tecnico">Técnico</SelectItem>
+                                <SelectItem value="financeiro">Financeiro</SelectItem>
+                                <SelectItem value="cliente">Cliente</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                           <TableCell>
                             <Badge
