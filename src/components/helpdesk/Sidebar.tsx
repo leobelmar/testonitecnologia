@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Users,
   Ticket,
   FileText,
   DollarSign,
@@ -14,6 +13,7 @@ import {
   X,
   Building2,
   Wrench,
+  UserPlus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -38,6 +38,12 @@ const navItems: NavItem[] = [
     href: '/app/clientes',
     icon: Building2,
     roles: ['admin', 'financeiro'],
+  },
+  {
+    title: 'Novo Cliente',
+    href: '/app/clientes/novo',
+    icon: UserPlus,
+    roles: ['admin'],
   },
   {
     title: 'Chamados',

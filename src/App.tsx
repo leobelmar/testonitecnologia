@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
+import NovoCliente from "./pages/NovoCliente";
 import Chamados from "./pages/Chamados";
 import NovoChamado from "./pages/NovoChamado";
 import ChamadoDetalhes from "./pages/ChamadoDetalhes";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="clientes" element={<Clientes />} />
+              <Route path="clientes/novo" element={<NovoCliente />} />
               <Route path="chamados" element={<Chamados />} />
               <Route path="chamados/novo" element={<NovoChamado />} />
               <Route path="chamados/:id" element={<ChamadoDetalhes />} />
