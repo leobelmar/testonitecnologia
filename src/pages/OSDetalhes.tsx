@@ -37,7 +37,9 @@ import {
   DollarSign,
   Save,
   CheckCircle,
+  Printer,
 } from 'lucide-react';
+import { PrintDialog } from '@/components/PrintDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -306,6 +308,34 @@ export default function OSDetalhes() {
           )}
         </div>
         <div className="flex gap-2">
+          <PrintDialog
+            data={{
+              type: 'os',
+              numero: os.numero,
+              descricao_servico: os.descricao_servico,
+              servicos_realizados: os.servicos_realizados,
+              materiais_usados: os.materiais_usados,
+              horas_trabalhadas: os.horas_trabalhadas,
+              valor_materiais: os.valor_materiais,
+              valor_mao_obra: os.valor_mao_obra,
+              valor_total: os.valor_total,
+              status: os.status,
+              data_inicio: os.data_inicio,
+              data_fim: os.data_fim,
+              observacoes: os.observacoes,
+              cliente_nome: os.cliente?.nome_empresa,
+              cliente_telefone: os.cliente?.telefone,
+              cliente_email: os.cliente?.email,
+              chamado_numero: os.chamado?.numero,
+              chamado_titulo: os.chamado?.titulo,
+            }}
+            trigger={
+              <Button variant="outline">
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
+              </Button>
+            }
+          />
           {canEdit && os.status !== 'faturada' && (
             <Button onClick={handleSave} disabled={saving} className="bg-navy hover:bg-petrol">
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
