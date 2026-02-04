@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Chamado, Cliente } from '@/types/database';
+import { Chamado } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -23,19 +23,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Search, Eye, Clock, AlertTriangle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Plus, Search, Clock, AlertTriangle } from 'lucide-react';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ChamadoDialog } from '@/components/chamados/ChamadoDialog';
 
 export default function Chamados() {
   const { isAdmin, isTecnico, isCliente } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [chamados, setChamados] = useState<Chamado[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [prioridadeFilter, setPrioridadeFilter] = useState<string>('todas');
+  const [selectedChamadoId, setSelectedChamadoId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchChamados();
@@ -196,7 +198,6 @@ export default function Chamados() {
                     <TableHead>Prioridade</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Abertura</TableHead>
-                    <TableHead className="w-[80px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -205,7 +206,14 @@ export default function Chamados() {
                     const status = getStatusBadge(chamado.status);
 
                     return (
-                      <TableRow key={chamado.id} className="cursor-pointer hover:bg-muted/50">
+                      <TableRow 
+                        key={chamado.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => {
+                          setSelectedChamadoId(chamado.id);
+                          setDialogOpen(true);
+                        }}
+                      >
                         <TableCell className="font-medium text-navy">
                           #{chamado.numero}
                         </TableCell>
@@ -232,22 +240,14 @@ export default function Chamados() {
                           <Badge className={status.style}>{status.label}</Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(chamado.data_abertura), {
-                              addSuffix: true,
-                              locale: ptBR,
-                            })}
+                          <div className="flex flex-col text-sm">
+                            <span className="font-medium">
+                              {format(new Date(chamado.data_abertura), "dd/MM/yyyy", { locale: ptBR })}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              {format(new Date(chamado.data_abertura), "HH:mm", { locale: ptBR })}
+                            </span>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => navigate(`/app/chamados/${chamado.id}`)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -258,6 +258,14 @@ export default function Chamados() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog para visualizar chamado */}
+      <ChamadoDialog
+        chamadoId={selectedChamadoId}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onChamadoUpdated={fetchChamados}
+      />
     </div>
   );
 }
