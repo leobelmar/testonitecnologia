@@ -62,6 +62,7 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
   const [loading, setLoading] = useState(true);
   const [comentario, setComentario] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
 
   // Estados para modais internos
   const [showGerarOSDialog, setShowGerarOSDialog] = useState(false);
@@ -462,7 +463,7 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
 
   return (
     <>
-      <Dialog open={open && !showGerarOSDialog && !showEncerrarDialog} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <div className="flex items-center gap-3 flex-wrap">
@@ -680,7 +681,9 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
                 <Button
                   variant="outline"
                   className="text-green-600 border-green-600 hover:bg-green-50"
-                  onClick={() => setShowGerarOSDialog(true)}
+                  onClick={() => {
+                    setShowGerarOSDialog(true);
+                  }}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Gerar OS
@@ -688,34 +691,22 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
                 <Button
                   variant="outline"
                   className="text-orange-600 border-orange-600 hover:bg-orange-50"
-                  onClick={() => setShowEncerrarDialog(true)}
+                  onClick={() => {
+                    setShowEncerrarDialog(true);
+                  }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Encerrar Sem Valor
                 </Button>
               </>
             )}
-            <PrintDialog
-              data={{
-                type: 'chamado',
-                numero: chamado.numero,
-                titulo: chamado.titulo,
-                descricao: chamado.descricao,
-                prioridade: chamado.prioridade,
-                status: chamado.status,
-                data_abertura: chamado.data_abertura,
-                cliente_nome: chamado.cliente?.nome_empresa,
-                cliente_telefone: chamado.cliente?.telefone,
-                cliente_email: chamado.cliente?.email,
-                tipo: chamado.tipo,
-              }}
-              trigger={
-                <Button variant="outline">
-                  <Printer className="h-4 w-4 mr-2" />
-                  Imprimir
-                </Button>
-              }
-            />
+            <Button
+              variant="outline"
+              onClick={() => setShowPrint(true)}
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>
@@ -879,6 +870,27 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* PrintDialog fora do Dialog principal para evitar conflito de contexto */}
+      {showPrint && chamado && (
+        <PrintDialog
+          data={{
+            type: 'chamado',
+            numero: chamado.numero,
+            titulo: chamado.titulo,
+            descricao: chamado.descricao,
+            prioridade: chamado.prioridade,
+            status: chamado.status,
+            data_abertura: chamado.data_abertura,
+            cliente_nome: chamado.cliente?.nome_empresa,
+            cliente_telefone: chamado.cliente?.telefone,
+            cliente_email: chamado.cliente?.email,
+            tipo: chamado.tipo,
+          }}
+          externalOpen={showPrint}
+          onExternalOpenChange={(isOpen) => setShowPrint(isOpen)}
+        />
+      )}
     </>
   );
 }
