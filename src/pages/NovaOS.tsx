@@ -213,14 +213,14 @@ export default function NovaOS() {
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="chamado">Chamado (opcional)</Label>
                 <Select
-                  value={form.chamado_id}
-                  onValueChange={handleChamadoChange}
+                  value={form.chamado_id || "avulsa"}
+                  onValueChange={(value) => handleChamadoChange(value === "avulsa" ? "" : value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Vincular a um chamado..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">OS Avulsa (sem chamado)</SelectItem>
+                    <SelectItem value="avulsa">OS Avulsa (sem chamado)</SelectItem>
                     {chamados.map((chamado) => (
                       <SelectItem key={chamado.id} value={chamado.id}>
                         #{chamado.numero} - {chamado.titulo} ({chamado.cliente?.nome_empresa})
