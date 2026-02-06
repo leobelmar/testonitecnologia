@@ -580,14 +580,14 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
                     <div className="space-y-2">
                       <Label>Atribuir para</Label>
                       <Select
-                        value={chamado.atribuido_a || ''}
-                        onValueChange={handleAtribuir}
+                        value={chamado.atribuido_a || 'nenhum'}
+                        onValueChange={(value) => handleAtribuir(value === 'nenhum' ? '' : value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Não atribuído" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Não atribuído</SelectItem>
+                          <SelectItem value="nenhum">Não atribuído</SelectItem>
                           {tecnicos.map((tecnico) => (
                             <SelectItem key={tecnico.user_id} value={tecnico.user_id}>
                               {tecnico.nome}
