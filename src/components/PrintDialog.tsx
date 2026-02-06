@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Printer } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import logoAzul from '@/assets/logo-azul.png';
 
 type PrintSize = 'a4' | '80mm';
 
@@ -87,6 +88,24 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
   const [open, setOpen] = useState(false);
   const [size, setSize] = useState<PrintSize>('a4');
   const printRef = useRef<HTMLDivElement>(null);
+  const [logoBase64, setLogoBase64] = useState<string>('');
+
+  // Convert logo to base64 for print window
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        setLogoBase64(canvas.toDataURL('image/png'));
+      }
+    };
+    img.src = logoAzul;
+  }, []);
 
   const handlePrint = () => {
     const printContent = printRef.current;
@@ -97,6 +116,8 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
 
     const styles = size === 'a4' ? getA4Styles() : get80mmStyles();
 
+    const logoDataUrl = logoBase64;
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -105,7 +126,7 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
           <style>${styles}</style>
         </head>
         <body>
-          ${printContent.innerHTML}
+          ${printContent.innerHTML.replace(/\{LOGO_SRC\}/g, logoDataUrl)}
           <script>
             window.onload = function() {
               window.print();
@@ -113,7 +134,7 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
                 window.close();
               };
             };
-          </script>
+          <\/script>
         </body>
       </html>
     `);
@@ -124,12 +145,12 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
   const getA4Styles = () => `
     @page {
       size: A4;
-      margin: 20mm;
+      margin: 12mm 15mm;
     }
     body {
       font-family: Arial, sans-serif;
-      font-size: 12pt;
-      line-height: 1.5;
+      font-size: 9pt;
+      line-height: 1.35;
       color: #333;
       margin: 0;
       padding: 0;
@@ -138,59 +159,73 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
       max-width: 100%;
     }
     .header {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 2px solid #0a2540;
-      padding-bottom: 15px;
-      margin-bottom: 20px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .header-logo {
+      height: 36px;
+      opacity: 0.85;
+    }
+    .header-text {
+      text-align: right;
     }
     .header h1 {
       color: #0a2540;
       margin: 0;
-      font-size: 24pt;
+      font-size: 16pt;
     }
     .header p {
-      color: #666;
-      margin: 5px 0 0;
+      color: #888;
+      margin: 2px 0 0;
+      font-size: 8pt;
     }
     .section {
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
     .section-title {
       font-weight: bold;
       color: #0a2540;
       border-bottom: 1px solid #ddd;
-      padding-bottom: 5px;
-      margin-bottom: 10px;
-      font-size: 14pt;
+      padding-bottom: 3px;
+      margin-bottom: 6px;
+      font-size: 10pt;
     }
     .info-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px 12px;
     }
     .info-item {
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .info-label {
       font-weight: bold;
       color: #666;
-      font-size: 10pt;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .info-value {
       color: #333;
+      font-size: 9pt;
     }
     .description {
       white-space: pre-wrap;
       background: #f9f9f9;
-      padding: 10px;
-      border-radius: 4px;
+      padding: 6px 8px;
+      border-radius: 3px;
       border: 1px solid #eee;
+      font-size: 8.5pt;
     }
     .badge {
       display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 10pt;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 8pt;
       font-weight: bold;
     }
     .badge-urgente { background: #fee2e2; color: #dc2626; }
@@ -199,34 +234,42 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
     .badge-baixa { background: #dcfce7; color: #16a34a; }
     .totals {
       background: #f0f9ff;
-      padding: 15px;
+      padding: 8px 12px;
       border-radius: 4px;
-      text-align: right;
     }
     .total-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
+      font-size: 9pt;
     }
     .total-final {
-      font-size: 16pt;
+      font-size: 12pt;
       font-weight: bold;
       color: #0a2540;
       border-top: 1px solid #0a2540;
-      padding-top: 10px;
-      margin-top: 10px;
+      padding-top: 6px;
+      margin-top: 6px;
     }
     .footer {
-      margin-top: 40px;
-      padding-top: 20px;
+      margin-top: 20px;
+      padding-top: 10px;
       border-top: 1px solid #ddd;
+      font-size: 7.5pt;
+      color: #999;
     }
     .signature-line {
       border-top: 1px solid #333;
-      width: 250px;
-      margin: 40px auto 5px;
+      width: 200px;
+      margin: 30px auto 3px;
       text-align: center;
-      padding-top: 5px;
+      padding-top: 3px;
+      font-size: 8pt;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
   `;
 
@@ -252,6 +295,16 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
       border-bottom: 1px dashed #000;
       padding-bottom: 8px;
       margin-bottom: 8px;
+      display: block;
+    }
+    .header-logo {
+      height: 20px;
+      margin: 0 auto 4px;
+      display: block;
+      opacity: 0.8;
+    }
+    .header-text {
+      text-align: center;
     }
     .header h1 {
       margin: 0;
@@ -261,6 +314,7 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
       margin: 3px 0 0;
       font-size: 8pt;
     }
+    .two-col { display: block; }
     .section {
       margin-bottom: 8px;
     }
@@ -342,8 +396,11 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
   const renderChamadoContent = (chamado: ChamadoPrintData) => (
     <div className="print-container">
       <div className="header">
-        <h1>Chamado #{chamado.numero}</h1>
-        <p>Testoni Tecnologia</p>
+        <img src={"{LOGO_SRC}"} alt="Logo" className="header-logo" />
+        <div className="header-text">
+          <h1>Chamado #{chamado.numero}</h1>
+          <p>Testoni Tecnologia</p>
+        </div>
       </div>
 
       <div className="section">
@@ -415,69 +472,74 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
   const renderOSContent = (os: OSPrintData) => (
     <div className="print-container">
       <div className="header">
-        <h1>Ordem de Serviço #{os.numero}</h1>
-        <p>Testoni Tecnologia</p>
-      </div>
-
-      <div className="section">
-        <div className="section-title">Informações da OS</div>
-        <div className="info-grid">
-          <div className="info-item">
-            <div className="info-label">Status</div>
-            <div className="info-value">
-              <span className="badge">{osStatusLabels[os.status] || os.status}</span>
-            </div>
-          </div>
-          {os.chamado_numero && (
-            <div className="info-item">
-              <div className="info-label">Chamado Vinculado</div>
-              <div className="info-value">#{os.chamado_numero} - {os.chamado_titulo}</div>
-            </div>
-          )}
-          {os.tecnico_nome && (
-            <div className="info-item">
-              <div className="info-label">Técnico</div>
-              <div className="info-value">{os.tecnico_nome}</div>
-            </div>
-          )}
-          {os.data_inicio && (
-            <div className="info-item">
-              <div className="info-label">Início</div>
-              <div className="info-value">{formatDate(os.data_inicio)}</div>
-            </div>
-          )}
-          {os.data_fim && (
-            <div className="info-item">
-              <div className="info-label">Fim</div>
-              <div className="info-value">{formatDate(os.data_fim)}</div>
-            </div>
-          )}
-          {os.horas_trabalhadas != null && (
-            <div className="info-item">
-              <div className="info-label">Horas Trabalhadas</div>
-              <div className="info-value">{os.horas_trabalhadas}h</div>
-            </div>
-          )}
+        <img src={"{LOGO_SRC}"} alt="Logo" className="header-logo" />
+        <div className="header-text">
+          <h1>OS #{os.numero}</h1>
+          <p>Testoni Tecnologia</p>
         </div>
       </div>
 
-      <div className="section">
-        <div className="section-title">Cliente</div>
-        <div className="info-item">
-          <div className="info-value">{os.cliente_nome || '-'}</div>
+      <div className="two-col">
+        <div className="section">
+          <div className="section-title">Cliente</div>
+          <div className="info-item">
+            <div className="info-value" style={{fontWeight: 'bold'}}>{os.cliente_nome || '-'}</div>
+          </div>
+          {os.cliente_telefone && (
+            <div className="info-item">
+              <div className="info-label">Telefone</div>
+              <div className="info-value">{os.cliente_telefone}</div>
+            </div>
+          )}
+          {os.cliente_email && (
+            <div className="info-item">
+              <div className="info-label">E-mail</div>
+              <div className="info-value">{os.cliente_email}</div>
+            </div>
+          )}
         </div>
-        {os.cliente_telefone && (
-          <div className="info-item">
-            <div className="info-label">Telefone</div>
-            <div className="info-value">{os.cliente_telefone}</div>
+
+        <div className="section">
+          <div className="section-title">Informações</div>
+          <div className="info-grid">
+            <div className="info-item">
+              <div className="info-label">Status</div>
+              <div className="info-value">
+                <span className="badge">{osStatusLabels[os.status] || os.status}</span>
+              </div>
+            </div>
+            {os.tecnico_nome && (
+              <div className="info-item">
+                <div className="info-label">Técnico</div>
+                <div className="info-value">{os.tecnico_nome}</div>
+              </div>
+            )}
+            {os.chamado_numero && (
+              <div className="info-item">
+                <div className="info-label">Chamado</div>
+                <div className="info-value">#{os.chamado_numero}</div>
+              </div>
+            )}
+            {os.data_inicio && (
+              <div className="info-item">
+                <div className="info-label">Início</div>
+                <div className="info-value">{formatDate(os.data_inicio)}</div>
+              </div>
+            )}
+            {os.data_fim && (
+              <div className="info-item">
+                <div className="info-label">Fim</div>
+                <div className="info-value">{formatDate(os.data_fim)}</div>
+              </div>
+            )}
+            {os.horas_trabalhadas != null && (
+              <div className="info-item">
+                <div className="info-label">Horas</div>
+                <div className="info-value">{os.horas_trabalhadas}h</div>
+              </div>
+            )}
           </div>
-        )}
-        {os.cliente_email && (
-          <div className="info-item">
-            <div className="info-label">E-mail</div>
-            <div className="info-value">{os.cliente_email}</div>
-          </div>
-        )}
+        </div>
       </div>
 
       {os.descricao_servico && (
@@ -494,19 +556,21 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
         </div>
       )}
 
-      {os.materiais_usados && (
-        <div className="section">
-          <div className="section-title">Materiais Utilizados</div>
-          <div className="description">{os.materiais_usados}</div>
-        </div>
-      )}
+      <div className="two-col">
+        {os.materiais_usados && (
+          <div className="section">
+            <div className="section-title">Materiais Utilizados</div>
+            <div className="description">{os.materiais_usados}</div>
+          </div>
+        )}
 
-      {os.observacoes && (
-        <div className="section">
-          <div className="section-title">Observações</div>
-          <div className="description">{os.observacoes}</div>
-        </div>
-      )}
+        {os.observacoes && (
+          <div className="section">
+            <div className="section-title">Observações</div>
+            <div className="description">{os.observacoes}</div>
+          </div>
+        )}
+      </div>
 
       <div className="section">
         <div className="section-title">Valores</div>
@@ -528,7 +592,7 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
 
       <div className="footer">
         <div className="signature-line">Assinatura do Cliente</div>
-        <p>Impresso em {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+        <p style={{textAlign: 'center', marginTop: '4px'}}>Impresso em {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
       </div>
     </div>
   );
