@@ -59,6 +59,8 @@ type PrintData = ChamadoPrintData | OSPrintData;
 interface PrintDialogProps {
   data: PrintData;
   trigger?: React.ReactNode;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
 const prioridadeLabels: Record<string, string> = {
@@ -84,8 +86,17 @@ const osStatusLabels: Record<string, string> = {
   faturada: 'Faturada',
 };
 
-export function PrintDialog({ data, trigger }: PrintDialogProps) {
-  const [open, setOpen] = useState(false);
+export function PrintDialog({ data, trigger, externalOpen, onExternalOpenChange }: PrintDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = (val: boolean) => {
+    if (isControlled) {
+      onExternalOpenChange?.(val);
+    } else {
+      setInternalOpen(val);
+    }
+  };
   const [size, setSize] = useState<PrintSize>('a4');
   const printRef = useRef<HTMLDivElement>(null);
   const [logoBase64, setLogoBase64] = useState<string>('');
@@ -599,14 +610,16 @@ export function PrintDialog({ data, trigger }: PrintDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline">
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimir
-          </Button>
-        )}
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button variant="outline">
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Imprimir {data.type === 'chamado' ? 'Chamado' : 'Ordem de Serviço'}</DialogTitle>
