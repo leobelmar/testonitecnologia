@@ -566,7 +566,7 @@ export type Database = {
       cliente_status: "ativo" | "inativo"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
       fatura_status: "em_aberto" | "pago" | "atrasado"
-      os_status: "aberta" | "em_execucao" | "finalizada" | "faturada"
+      os_status: "aberta" | "em_execucao" | "finalizada" | "faturada" | "pago"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -707,7 +707,7 @@ export const Constants = {
       cliente_status: ["ativo", "inativo"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
       fatura_status: ["em_aberto", "pago", "atrasado"],
-      os_status: ["aberta", "em_execucao", "finalizada", "faturada"],
+      os_status: ["aberta", "em_execucao", "finalizada", "faturada", "pago"],
     },
   },
 } as const

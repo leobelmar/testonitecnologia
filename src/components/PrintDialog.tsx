@@ -80,10 +80,11 @@ const chamadoStatusLabels: Record<string, string> = {
 };
 
 const osStatusLabels: Record<string, string> = {
-  aberta: 'Aberta',
+  aberta: 'Em Aberto',
   em_execucao: 'Em Execução',
   finalizada: 'Finalizada',
-  faturada: 'Faturada',
+  faturada: 'Faturado',
+  pago: 'Pago',
 };
 
 export function PrintDialog({ data, trigger, externalOpen, onExternalOpenChange }: PrintDialogProps) {

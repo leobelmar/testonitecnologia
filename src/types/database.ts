@@ -4,7 +4,7 @@ export type AppRole = 'admin' | 'tecnico' | 'financeiro' | 'cliente';
 export type ClienteStatus = 'ativo' | 'inativo';
 export type ChamadoPrioridade = 'baixa' | 'media' | 'alta' | 'urgente';
 export type ChamadoStatus = 'aberto' | 'em_atendimento' | 'aguardando_cliente' | 'aguardando_terceiros' | 'finalizado' | 'cancelado';
-export type OSStatus = 'aberta' | 'em_execucao' | 'finalizada' | 'faturada';
+export type OSStatus = 'aberta' | 'em_execucao' | 'finalizada' | 'faturada' | 'pago';
 export type FaturaStatus = 'em_aberto' | 'pago' | 'atrasado';
 export type ConviteStatus = 'pendente' | 'aceito' | 'expirado' | 'cancelado';
 

@@ -70,14 +70,16 @@ export default function OrdensServico() {
       em_execucao: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
       finalizada: 'bg-green-100 text-green-800 hover:bg-green-100',
       faturada: 'bg-purple-100 text-purple-800 hover:bg-purple-100',
+      pago: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100',
     };
     const labels: Record<string, string> = {
-      aberta: 'Aberta',
+      aberta: 'Em Aberto',
       em_execucao: 'Em Execução',
       finalizada: 'Finalizada',
-      faturada: 'Faturada',
+      faturada: 'Faturado',
+      pago: 'Pago',
     };
-    return { style: styles[status], label: labels[status] };
+    return { style: styles[status] || '', label: labels[status] || status };
   };
 
   const filteredOrdens = ordens.filter((os) => {
@@ -130,10 +132,11 @@ export default function OrdensServico() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os Status</SelectItem>
-                <SelectItem value="aberta">Aberta</SelectItem>
+                <SelectItem value="aberta">Em Aberto</SelectItem>
                 <SelectItem value="em_execucao">Em Execução</SelectItem>
                 <SelectItem value="finalizada">Finalizada</SelectItem>
-                <SelectItem value="faturada">Faturada</SelectItem>
+                <SelectItem value="faturada">Faturado</SelectItem>
+                <SelectItem value="pago">Pago</SelectItem>
               </SelectContent>
             </Select>
           </div>
