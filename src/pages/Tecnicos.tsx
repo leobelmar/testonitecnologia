@@ -160,10 +160,16 @@ export default function Tecnicos() {
     const styles: Record<string, string> = {
       aberta: 'bg-blue-100 text-blue-800',
       em_execucao: 'bg-yellow-100 text-yellow-800',
+      finalizada: 'bg-green-100 text-green-800',
+      faturada: 'bg-purple-100 text-purple-800',
+      pago: 'bg-emerald-100 text-emerald-800',
     };
     const labels: Record<string, string> = {
-      aberta: 'Aberta',
+      aberta: 'Em Aberto',
       em_execucao: 'Em Execução',
+      finalizada: 'Finalizada',
+      faturada: 'Faturado',
+      pago: 'Pago',
     };
     return { style: styles[status] || '', label: labels[status] || status };
   };

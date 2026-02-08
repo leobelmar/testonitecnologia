@@ -57,6 +57,7 @@ export default function OSDetalhes() {
   const [faturando, setFaturando] = useState(false);
 
   const [form, setForm] = useState({
+    descricao_servico: '',
     servicos_realizados: '',
     horas_trabalhadas: '',
     materiais_usados: '',
@@ -97,6 +98,7 @@ export default function OSDetalhes() {
 
       setOS(data as OrdemServico);
       setForm({
+        descricao_servico: data.descricao_servico || '',
         servicos_realizados: data.servicos_realizados || '',
         horas_trabalhadas: data.horas_trabalhadas?.toString() || '',
         materiais_usados: data.materiais_usados || '',
@@ -144,6 +146,7 @@ export default function OSDetalhes() {
 
     try {
       const updateData: any = {
+        descricao_servico: form.descricao_servico || null,
         servicos_realizados: form.servicos_realizados || null,
         horas_trabalhadas: parseFloat(form.horas_trabalhadas) || 0,
         materiais_usados: form.materiais_usados || null,
@@ -251,14 +254,16 @@ export default function OSDetalhes() {
       em_execucao: 'bg-yellow-100 text-yellow-800',
       finalizada: 'bg-green-100 text-green-800',
       faturada: 'bg-purple-100 text-purple-800',
+      pago: 'bg-emerald-100 text-emerald-800',
     };
     const labels: Record<string, string> = {
-      aberta: 'Aberta',
+      aberta: 'Em Aberto',
       em_execucao: 'Em Execução',
       finalizada: 'Finalizada',
-      faturada: 'Faturada',
+      faturada: 'Faturado',
+      pago: 'Pago',
     };
-    return { style: styles[status], label: labels[status] };
+    return { style: styles[status] || '', label: labels[status] || status };
   };
 
   if (loading) {
@@ -283,6 +288,7 @@ export default function OSDetalhes() {
   const status = getStatusBadge(os.status);
   const canEdit = isAdmin || isTecnico || isFinanceiro;
   const canFaturar = (isAdmin || isFinanceiro) && os.status === 'finalizada';
+  const canMarcarPago = (isAdmin || isFinanceiro) && os.status === 'faturada';
 
   return (
     <div className="space-y-6">
@@ -336,7 +342,7 @@ export default function OSDetalhes() {
               </Button>
             }
           />
-          {canEdit && os.status !== 'faturada' && (
+          {canEdit && os.status !== 'faturada' && os.status !== 'pago' && (
             <Button onClick={handleSave} disabled={saving} className="bg-navy hover:bg-petrol">
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Salvar
@@ -417,6 +423,28 @@ export default function OSDetalhes() {
               </DialogContent>
             </Dialog>
           )}
+          {canMarcarPago && (
+            <Button
+              variant="outline"
+              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              onClick={async () => {
+                try {
+                  const { error } = await supabase
+                    .from('ordens_servico')
+                    .update({ status: 'pago' as any })
+                    .eq('id', os.id);
+                  if (error) throw error;
+                  toast({ title: 'Sucesso', description: 'OS marcada como paga.' });
+                  fetchOS();
+                } catch (error: any) {
+                  toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+                }
+              }}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Marcar como Pago
+            </Button>
+          )}
         </div>
       </div>
 
@@ -426,17 +454,28 @@ export default function OSDetalhes() {
           {/* Serviços */}
           <Card>
             <CardHeader>
-              <CardTitle>Serviços Realizados</CardTitle>
+            <CardTitle>Serviços</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Descrição dos Serviços</Label>
+                <Label>Descrição do Serviço</Label>
+                <Textarea
+                  value={form.descricao_servico}
+                  onChange={(e) => setForm({ ...form, descricao_servico: e.target.value })}
+                  placeholder="Descrição do serviço a ser realizado..."
+                  rows={3}
+                  disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Serviços Realizados</Label>
                 <Textarea
                   value={form.servicos_realizados}
                   onChange={(e) => setForm({ ...form, servicos_realizados: e.target.value })}
                   placeholder="Descreva os serviços realizados..."
-                  rows={5}
-                  disabled={!canEdit || os.status === 'faturada'}
+                  rows={4}
+                  disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
                 />
               </div>
 
@@ -449,7 +488,7 @@ export default function OSDetalhes() {
                     min="0"
                     value={form.horas_trabalhadas}
                     onChange={(e) => setForm({ ...form, horas_trabalhadas: e.target.value })}
-                    disabled={!canEdit || os.status === 'faturada'}
+                    disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
                   />
                 </div>
                 <div className="space-y-2">
@@ -457,13 +496,13 @@ export default function OSDetalhes() {
                   <Select
                     value={form.status}
                     onValueChange={(value: OSStatus) => setForm({ ...form, status: value })}
-                    disabled={!canEdit || os.status === 'faturada'}
+                    disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="aberta">Aberta</SelectItem>
+                    <SelectItem value="aberta">Em Aberto</SelectItem>
                       <SelectItem value="em_execucao">Em Execução</SelectItem>
                       <SelectItem value="finalizada">Finalizada</SelectItem>
                     </SelectContent>
@@ -510,7 +549,7 @@ export default function OSDetalhes() {
                     min="0"
                     value={form.valor_mao_obra}
                     onChange={(e) => setForm({ ...form, valor_mao_obra: e.target.value })}
-                    disabled={!canEdit || os.status === 'faturada'}
+                    disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
                   />
                 </div>
                 <div className="space-y-2">
@@ -521,7 +560,7 @@ export default function OSDetalhes() {
                     min="0"
                     value={form.valor_materiais}
                     onChange={(e) => setForm({ ...form, valor_materiais: e.target.value })}
-                    disabled={!canEdit || os.status === 'faturada'}
+                    disabled={!canEdit || os.status === 'faturada' || os.status === 'pago'}
                   />
                 </div>
               </div>
@@ -571,7 +610,7 @@ export default function OSDetalhes() {
                   <Select
                     value={form.tecnico_id}
                     onValueChange={(value) => setForm({ ...form, tecnico_id: value })}
-                    disabled={os.status === 'faturada'}
+                    disabled={os.status === 'faturada' || os.status === 'pago'}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione..." />
