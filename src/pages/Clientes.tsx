@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Cliente, Plano } from '@/types/database';
+import { Cliente } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,7 @@ export default function Clientes() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [planos, setPlanos] = useState<Plano[]>([]);
+  const [contratosMap, setContratosMap] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -56,24 +56,20 @@ export default function Clientes() {
     cidade: '',
     estado: '',
     cep: '',
-    plano_id: '',
     status: 'ativo' as 'ativo' | 'inativo',
     observacoes: '',
   });
 
   useEffect(() => {
     fetchClientes();
-    fetchPlanos();
+    fetchContratos();
   }, []);
 
   const fetchClientes = async () => {
     try {
       const { data, error } = await supabase
         .from('clientes')
-        .select(`
-          *,
-          plano:planos(*)
-        `)
+        .select('*')
         .order('nome_empresa');
 
       if (error) throw error;
@@ -90,18 +86,21 @@ export default function Clientes() {
     }
   };
 
-  const fetchPlanos = async () => {
+  const fetchContratos = async () => {
     try {
       const { data, error } = await supabase
-        .from('planos')
-        .select('*')
-        .eq('ativo', true)
-        .order('valor_mensal');
+        .from('contratos')
+        .select('id, numero, cliente_id, status, valor_mensal, horas_inclusas')
+        .eq('status', 'ativo');
 
       if (error) throw error;
-      setPlanos(data as Plano[]);
+      const map: Record<string, any> = {};
+      (data || []).forEach((c) => {
+        map[c.cliente_id] = c;
+      });
+      setContratosMap(map);
     } catch (error) {
-      console.error('Erro ao buscar planos:', error);
+      console.error('Erro ao buscar contratos:', error);
     }
   };
 
@@ -120,7 +119,6 @@ export default function Clientes() {
     try {
       const clienteData = {
         ...form,
-        plano_id: form.plano_id || null,
         created_by: user?.id,
       };
 
@@ -173,7 +171,6 @@ export default function Clientes() {
       cidade: '',
       estado: '',
       cep: '',
-      plano_id: '',
       status: 'ativo',
       observacoes: '',
     });
@@ -192,7 +189,6 @@ export default function Clientes() {
       cidade: cliente.cidade || '',
       estado: cliente.estado || '',
       cep: cliente.cep || '',
-      plano_id: cliente.plano_id || '',
       status: cliente.status,
       observacoes: cliente.observacoes || '',
     });
@@ -325,24 +321,6 @@ export default function Clientes() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="plano_id">Plano Contratado</Label>
-                  <Select
-                    value={form.plano_id}
-                    onValueChange={(value) => setForm({ ...form, plano_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um plano" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {planos.map((plano) => (
-                        <SelectItem key={plano.id} value={plano.id}>
-                          {plano.nome} - R$ {Number(plano.valor_mensal).toFixed(2)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={form.status}
@@ -412,7 +390,7 @@ export default function Clientes() {
                   <TableRow>
                     <TableHead>Empresa</TableHead>
                     <TableHead>Contato</TableHead>
-                    <TableHead>Plano</TableHead>
+                    <TableHead>Contrato</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="w-[100px]">Ações</TableHead>
                   </TableRow>
@@ -450,10 +428,14 @@ export default function Clientes() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {cliente.plano?.nome || (
-                          <span className="text-muted-foreground">Sem plano</span>
-                        )}
-                      </TableCell>
+                         {contratosMap[cliente.id] ? (
+                           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                             #{contratosMap[cliente.id].numero} - {contratosMap[cliente.id].horas_inclusas}h
+                           </Badge>
+                         ) : (
+                           <span className="text-muted-foreground">Sem contrato</span>
+                         )}
+                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={cliente.status === 'ativo' ? 'default' : 'secondary'}
