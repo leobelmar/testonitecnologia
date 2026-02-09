@@ -14,6 +14,7 @@ import {
   Building2,
   Wrench,
   UserPlus,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -73,6 +74,12 @@ const navItems: NavItem[] = [
     title: 'Usuários',
     href: '/app/usuarios',
     icon: UserCog,
+    roles: ['admin'],
+  },
+  {
+    title: 'Auditoria',
+    href: '/app/auditoria',
+    icon: Shield,
     roles: ['admin'],
   },
   {
