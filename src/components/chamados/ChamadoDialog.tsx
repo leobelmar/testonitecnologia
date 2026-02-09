@@ -899,6 +899,7 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
             cliente_telefone: chamado.cliente?.telefone,
             cliente_email: chamado.cliente?.email,
             tipo: chamado.tipo,
+            tecnico_nome: tecnicos.find(t => t.user_id === chamado.atribuido_a)?.nome || null,
           }}
           externalOpen={showPrint}
           onExternalOpenChange={(isOpen) => setShowPrint(isOpen)}
