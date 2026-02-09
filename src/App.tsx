@@ -28,6 +28,7 @@ import Auditoria from "./pages/Auditoria";
 import Contratos from "./pages/Contratos";
 import NovoContrato from "./pages/NovoContrato";
 import ContratoDetalhes from "./pages/ContratoDetalhes";
+import Estoque from "./pages/Estoque";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="contratos" element={<Contratos />} />
               <Route path="contratos/novo" element={<NovoContrato />} />
               <Route path="contratos/:id" element={<ContratoDetalhes />} />
+              <Route path="estoque" element={<Estoque />} />
             </Route>
 
             {/* 404 */}

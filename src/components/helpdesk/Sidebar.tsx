@@ -16,6 +16,7 @@ import {
   UserPlus,
   Shield,
   ScrollText,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -70,6 +71,12 @@ const navItems: NavItem[] = [
     href: '/app/contratos',
     icon: ScrollText,
     roles: ['admin', 'financeiro', 'cliente'],
+  },
+  {
+    title: 'Estoque',
+    href: '/app/estoque',
+    icon: Package,
+    roles: ['admin', 'tecnico'],
   },
   {
     title: 'Técnicos',

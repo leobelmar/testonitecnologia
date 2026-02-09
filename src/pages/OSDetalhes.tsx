@@ -40,6 +40,8 @@ import {
   Printer,
 } from 'lucide-react';
 import { PrintDialog } from '@/components/PrintDialog';
+import { OSPecasSection } from '@/components/os/OSPecasSection';
+import { gerarFaturaPDF } from '@/lib/faturaPDF';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -55,6 +57,7 @@ export default function OSDetalhes() {
   const [saving, setSaving] = useState(false);
   const [faturarDialogOpen, setFaturarDialogOpen] = useState(false);
   const [faturando, setFaturando] = useState(false);
+  const [totalPecas, setTotalPecas] = useState(0);
 
   const [form, setForm] = useState({
     descricao_servico: '',
@@ -137,7 +140,7 @@ export default function OSDetalhes() {
   const calcularTotal = () => {
     const materiais = parseFloat(form.valor_materiais) || 0;
     const maoObra = parseFloat(form.valor_mao_obra) || 0;
-    return materiais + maoObra;
+    return materiais + maoObra + totalPecas;
   };
 
   const handleSave = async () => {
@@ -205,19 +208,21 @@ export default function OSDetalhes() {
 
     try {
       // Criar fatura
-      const { error: faturaError } = await supabase
+      const { data: fatura, error: faturaError } = await supabase
         .from('faturas')
         .insert({
           cliente_id: os.cliente_id,
           os_id: os.id,
-          valor_total: os.valor_total,
+          valor_total: calcularTotal(),
           data_emissao: new Date().toISOString().split('T')[0],
           data_vencimento: faturaForm.data_vencimento,
           forma_pagamento: faturaForm.forma_pagamento || null,
           descricao: faturaForm.descricao || `Ordem de Serviço #${os.numero}`,
           status: 'em_aberto',
           created_by: user?.id,
-        });
+        })
+        .select()
+        .single();
 
       if (faturaError) throw faturaError;
 
@@ -229,9 +234,51 @@ export default function OSDetalhes() {
 
       if (osError) throw osError;
 
+      // Buscar peças da OS para o PDF
+      const { data: pecasData } = await supabase
+        .from('os_pecas')
+        .select('*, produto:produtos(nome, modelo)')
+        .eq('os_id', os.id);
+
+      const pecasPDF = (pecasData || []).map((p: any) => ({
+        nome: p.produto?.nome || '-',
+        modelo: p.produto?.modelo || null,
+        quantidade: p.quantidade,
+        valor_unitario: Number(p.valor_unitario),
+        valor_total: Number(p.valor_total),
+      }));
+
+      // Buscar dados completos do cliente
+      const { data: clienteData } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('id', os.cliente_id)
+        .single();
+
+      // Gerar PDF
+      gerarFaturaPDF({
+        numero: fatura.numero,
+        cliente_nome: clienteData?.nome_empresa || os.cliente?.nome_empresa || '',
+        cliente_cnpj: clienteData?.cnpj_cpf,
+        cliente_endereco: clienteData?.endereco,
+        cliente_telefone: clienteData?.telefone,
+        cliente_email: clienteData?.email,
+        descricao: faturaForm.descricao || `Ordem de Serviço #${os.numero}`,
+        valor_total: calcularTotal(),
+        data_emissao: new Date().toISOString().split('T')[0],
+        data_vencimento: faturaForm.data_vencimento,
+        forma_pagamento: faturaForm.forma_pagamento,
+        status: 'em_aberto',
+        pecas: pecasPDF,
+        horas_trabalhadas: parseFloat(form.horas_trabalhadas) || 0,
+        valor_mao_obra: parseFloat(form.valor_mao_obra) || 0,
+        valor_materiais: parseFloat(form.valor_materiais) || 0,
+        observacoes: form.observacoes,
+      });
+
       toast({
         title: 'Sucesso',
-        description: 'Fatura criada com sucesso.',
+        description: `Fatura #${fatura.numero} criada e PDF gerado.`,
       });
 
       setFaturarDialogOpen(false);
@@ -575,8 +622,18 @@ export default function OSDetalhes() {
               </div>
             </CardContent>
           </Card>
-        </div>
 
+          {/* Peças */}
+          {os && (
+            <OSPecasSection
+              osId={os.id}
+              osStatus={os.status}
+              clienteId={os.cliente_id}
+              canEdit={canEdit}
+              onTotalChange={setTotalPecas}
+            />
+          )}
+        </div>
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Cliente */}
