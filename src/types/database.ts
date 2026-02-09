@@ -5,6 +5,7 @@ export type ClienteStatus = 'ativo' | 'inativo';
 export type ChamadoPrioridade = 'baixa' | 'media' | 'alta' | 'urgente';
 export type ChamadoStatus = 'aberto' | 'em_atendimento' | 'aguardando_cliente' | 'aguardando_terceiros' | 'finalizado' | 'cancelado';
 export type OSStatus = 'aberta' | 'em_execucao' | 'finalizada' | 'faturada' | 'pago';
+export type TipoAtendimento = 'remoto' | 'presencial' | 'sla1' | 'sla2' | 'sla3';
 export type FaturaStatus = 'em_aberto' | 'pago' | 'atrasado';
 export type ConviteStatus = 'pendente' | 'aceito' | 'expirado' | 'cancelado';
 
@@ -127,6 +128,7 @@ export interface OrdemServico {
   tecnico_id: string | null;
   contrato_id: string | null;
   tipo_hora_id: string | null;
+  tipo_atendimento: TipoAtendimento | null;
   descricao_servico: string | null;
   servicos_realizados: string | null;
   horas_trabalhadas: number;
