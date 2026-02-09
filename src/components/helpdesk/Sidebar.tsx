@@ -15,6 +15,7 @@ import {
   Wrench,
   UserPlus,
   Shield,
+  ScrollText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -62,6 +63,12 @@ const navItems: NavItem[] = [
     title: 'Financeiro',
     href: '/app/financeiro',
     icon: DollarSign,
+    roles: ['admin', 'financeiro', 'cliente'],
+  },
+  {
+    title: 'Contratos',
+    href: '/app/contratos',
+    icon: ScrollText,
     roles: ['admin', 'financeiro', 'cliente'],
   },
   {

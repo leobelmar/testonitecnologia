@@ -303,6 +303,214 @@ export type Database = {
           },
         ]
       }
+      contrato_periodo_horas: {
+        Row: {
+          created_at: string
+          horas: number
+          id: string
+          periodo_id: string
+          tipo_hora_id: string
+          valor_hora_extra: number
+        }
+        Insert: {
+          created_at?: string
+          horas?: number
+          id?: string
+          periodo_id: string
+          tipo_hora_id: string
+          valor_hora_extra?: number
+        }
+        Update: {
+          created_at?: string
+          horas?: number
+          id?: string
+          periodo_id?: string
+          tipo_hora_id?: string
+          valor_hora_extra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contrato_periodo_horas_periodo_id_fkey"
+            columns: ["periodo_id"]
+            isOneToOne: false
+            referencedRelation: "contrato_periodos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contrato_periodo_horas_tipo_hora_id_fkey"
+            columns: ["tipo_hora_id"]
+            isOneToOne: false
+            referencedRelation: "contrato_tipos_hora"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contrato_periodos: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          contrato_id: string
+          created_at: string
+          fatura_id: string | null
+          fechado_em: string | null
+          fechado_por: string | null
+          horas_excedentes: number
+          horas_inclusas: number
+          id: string
+          mes_referencia: string
+          status: Database["public"]["Enums"]["periodo_status"]
+          total_atendimentos: number
+          total_horas_usadas: number
+          total_os: number
+          updated_at: string
+          valor_horas_extras: number
+          valor_materiais: number
+          valor_total: number
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          contrato_id: string
+          created_at?: string
+          fatura_id?: string | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          horas_excedentes?: number
+          horas_inclusas?: number
+          id?: string
+          mes_referencia: string
+          status?: Database["public"]["Enums"]["periodo_status"]
+          total_atendimentos?: number
+          total_horas_usadas?: number
+          total_os?: number
+          updated_at?: string
+          valor_horas_extras?: number
+          valor_materiais?: number
+          valor_total?: number
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          contrato_id?: string
+          created_at?: string
+          fatura_id?: string | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          horas_excedentes?: number
+          horas_inclusas?: number
+          id?: string
+          mes_referencia?: string
+          status?: Database["public"]["Enums"]["periodo_status"]
+          total_atendimentos?: number
+          total_horas_usadas?: number
+          total_os?: number
+          updated_at?: string
+          valor_horas_extras?: number
+          valor_materiais?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contrato_periodos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contrato_periodos_fatura_id_fkey"
+            columns: ["fatura_id"]
+            isOneToOne: false
+            referencedRelation: "faturas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contrato_tipos_hora: {
+        Row: {
+          contrato_id: string
+          created_at: string
+          id: string
+          nome: string
+          valor_hora_extra: number
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string
+          id?: string
+          nome: string
+          valor_hora_extra?: number
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          valor_hora_extra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contrato_tipos_hora_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string
+          horas_inclusas: number
+          id: string
+          numero: number
+          observacoes: string | null
+          status: Database["public"]["Enums"]["contrato_status"]
+          updated_at: string
+          valor_mensal: number
+          vigencia_fim: string | null
+          vigencia_inicio: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by: string
+          horas_inclusas?: number
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["contrato_status"]
+          updated_at?: string
+          valor_mensal?: number
+          vigencia_fim?: string | null
+          vigencia_inicio: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string
+          horas_inclusas?: number
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["contrato_status"]
+          updated_at?: string
+          valor_mensal?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       convites: {
         Row: {
           accepted_at: string | null
@@ -469,6 +677,7 @@ export type Database = {
           assinatura_url: string | null
           chamado_id: string | null
           cliente_id: string
+          contrato_id: string | null
           created_at: string
           created_by: string
           data_fim: string | null
@@ -482,6 +691,7 @@ export type Database = {
           servicos_realizados: string | null
           status: Database["public"]["Enums"]["os_status"]
           tecnico_id: string | null
+          tipo_hora_id: string | null
           updated_at: string
           valor_mao_obra: number | null
           valor_materiais: number | null
@@ -491,6 +701,7 @@ export type Database = {
           assinatura_url?: string | null
           chamado_id?: string | null
           cliente_id: string
+          contrato_id?: string | null
           created_at?: string
           created_by: string
           data_fim?: string | null
@@ -504,6 +715,7 @@ export type Database = {
           servicos_realizados?: string | null
           status?: Database["public"]["Enums"]["os_status"]
           tecnico_id?: string | null
+          tipo_hora_id?: string | null
           updated_at?: string
           valor_mao_obra?: number | null
           valor_materiais?: number | null
@@ -513,6 +725,7 @@ export type Database = {
           assinatura_url?: string | null
           chamado_id?: string | null
           cliente_id?: string
+          contrato_id?: string | null
           created_at?: string
           created_by?: string
           data_fim?: string | null
@@ -526,6 +739,7 @@ export type Database = {
           servicos_realizados?: string | null
           status?: Database["public"]["Enums"]["os_status"]
           tecnico_id?: string | null
+          tipo_hora_id?: string | null
           updated_at?: string
           valor_mao_obra?: number | null
           valor_materiais?: number | null
@@ -544,6 +758,20 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordens_servico_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordens_servico_tipo_hora_id_fkey"
+            columns: ["tipo_hora_id"]
+            isOneToOne: false
+            referencedRelation: "contrato_tipos_hora"
             referencedColumns: ["id"]
           },
         ]
@@ -657,9 +885,11 @@ export type Database = {
         | "finalizado"
         | "cancelado"
       cliente_status: "ativo" | "inativo"
+      contrato_status: "ativo" | "suspenso" | "cancelado" | "encerrado"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
       fatura_status: "em_aberto" | "pago" | "atrasado"
       os_status: "aberta" | "em_execucao" | "finalizada" | "faturada" | "pago"
+      periodo_status: "ativo" | "fechado" | "faturado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -798,9 +1028,11 @@ export const Constants = {
         "cancelado",
       ],
       cliente_status: ["ativo", "inativo"],
+      contrato_status: ["ativo", "suspenso", "cancelado", "encerrado"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
       fatura_status: ["em_aberto", "pago", "atrasado"],
       os_status: ["aberta", "em_execucao", "finalizada", "faturada", "pago"],
+      periodo_status: ["ativo", "fechado", "faturado"],
     },
   },
 } as const

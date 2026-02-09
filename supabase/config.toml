@@ -1,1 +1,4 @@
 project_id = "qjirnuwrnnspmtbxxqnx"
+
+[functions.fechamento-mensal]
+verify_jwt = false

@@ -125,6 +125,8 @@ export interface OrdemServico {
   chamado_id: string | null;
   cliente_id: string;
   tecnico_id: string | null;
+  contrato_id: string | null;
+  tipo_hora_id: string | null;
   descricao_servico: string | null;
   servicos_realizados: string | null;
   horas_trabalhadas: number;
@@ -141,8 +143,8 @@ export interface OrdemServico {
   created_at: string;
   updated_at: string;
   // Joins
-  cliente?: Cliente | null;
-  chamado?: Chamado | null;
+  cliente?: Partial<Cliente> | null;
+  chamado?: Partial<Chamado> | null;
   tecnico?: Profile | null;
 }
 
