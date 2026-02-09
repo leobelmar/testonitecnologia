@@ -24,6 +24,7 @@ import OSDetalhes from "./pages/OSDetalhes";
 import Financeiro from "./pages/Financeiro";
 import Usuarios from "./pages/Usuarios";
 import Tecnicos from "./pages/Tecnicos";
+import Auditoria from "./pages/Auditoria";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="financeiro" element={<Financeiro />} />
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="tecnicos" element={<Tecnicos />} />
+              <Route path="auditoria" element={<Auditoria />} />
             </Route>
 
             {/* 404 */}
