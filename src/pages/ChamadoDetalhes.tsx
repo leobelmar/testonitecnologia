@@ -683,14 +683,14 @@ export default function ChamadoDetalhes() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Atribuir para</p>
                     <Select
-                      value={chamado.atribuido_a || ''}
-                      onValueChange={handleAtribuir}
+                      value={chamado.atribuido_a || '__none__'}
+                      onValueChange={(val) => handleAtribuir(val === '__none__' ? '' : val)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Não atribuído" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Não atribuído</SelectItem>
+                        <SelectItem value="__none__">Não atribuído</SelectItem>
                         {tecnicos.map((tecnico) => (
                           <SelectItem key={tecnico.user_id} value={tecnico.user_id}>
                             {tecnico.nome}
