@@ -755,6 +755,9 @@ export type Database = {
           servicos_realizados: string | null
           status: Database["public"]["Enums"]["os_status"]
           tecnico_id: string | null
+          tipo_atendimento:
+            | Database["public"]["Enums"]["tipo_atendimento"]
+            | null
           tipo_hora_id: string | null
           updated_at: string
           valor_mao_obra: number | null
@@ -779,6 +782,9 @@ export type Database = {
           servicos_realizados?: string | null
           status?: Database["public"]["Enums"]["os_status"]
           tecnico_id?: string | null
+          tipo_atendimento?:
+            | Database["public"]["Enums"]["tipo_atendimento"]
+            | null
           tipo_hora_id?: string | null
           updated_at?: string
           valor_mao_obra?: number | null
@@ -803,6 +809,9 @@ export type Database = {
           servicos_realizados?: string | null
           status?: Database["public"]["Enums"]["os_status"]
           tecnico_id?: string | null
+          tipo_atendimento?:
+            | Database["public"]["Enums"]["tipo_atendimento"]
+            | null
           tipo_hora_id?: string | null
           updated_at?: string
           valor_mao_obra?: number | null
@@ -1052,6 +1061,7 @@ export type Database = {
       movimentacao_tipo: "entrada" | "saida" | "ajuste"
       os_status: "aberta" | "em_execucao" | "finalizada" | "faturada" | "pago"
       periodo_status: "ativo" | "fechado" | "faturado"
+      tipo_atendimento: "remoto" | "presencial" | "sla1" | "sla2" | "sla3"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1196,6 +1206,7 @@ export const Constants = {
       movimentacao_tipo: ["entrada", "saida", "ajuste"],
       os_status: ["aberta", "em_execucao", "finalizada", "faturada", "pago"],
       periodo_status: ["ativo", "fechado", "faturado"],
+      tipo_atendimento: ["remoto", "presencial", "sla1", "sla2", "sla3"],
     },
   },
 } as const

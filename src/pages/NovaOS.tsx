@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Cliente, Chamado, Profile } from '@/types/database';
+import { Cliente, Chamado, Profile, TipoAtendimento } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -16,7 +16,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+const TIPO_ATENDIMENTO_LABELS: Record<TipoAtendimento, string> = {
+  remoto: 'Remoto',
+  presencial: 'Presencial',
+  sla1: 'SLA 1',
+  sla2: 'SLA 2',
+  sla3: 'SLA 3',
+};
 
 export default function NovaOS() {
   const navigate = useNavigate();
@@ -38,29 +47,28 @@ export default function NovaOS() {
     tecnico_id: '',
     contrato_id: '',
     tipo_hora_id: '',
+    tipo_atendimento: '' as TipoAtendimento | '',
     descricao_servico: '',
     horas_trabalhadas: '',
-    materiais_usados: '',
-    valor_materiais: '',
-    valor_mao_obra: '',
     observacoes: '',
   });
+
+  // Selected tipo_hora rate
+  const selectedTipoHora = tiposHora.find((t: any) => t.id === form.tipo_hora_id);
+  const valorHora = selectedTipoHora ? Number(selectedTipoHora.valor_hora_extra) : 0;
+  const horas = parseFloat(form.horas_trabalhadas) || 0;
+  const valorMaoObra = valorHora * horas;
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    // Se veio de um chamado específico
     const chamadoId = searchParams.get('chamado');
     if (chamadoId && chamados.length > 0) {
       const chamado = chamados.find(c => c.id === chamadoId);
       if (chamado) {
-        setForm(prev => ({
-          ...prev,
-          chamado_id: chamadoId,
-          cliente_id: chamado.cliente_id,
-        }));
+        setForm(prev => ({ ...prev, chamado_id: chamadoId, cliente_id: chamado.cliente_id }));
       }
     }
   }, [searchParams, chamados]);
@@ -82,7 +90,7 @@ export default function NovaOS() {
     }
   };
 
-  // Buscar contratos quando cliente muda
+  // Fetch contracts when client changes
   useEffect(() => {
     if (form.cliente_id) {
       supabase.from('contratos').select('*, contrato_tipos_hora(*)').eq('cliente_id', form.cliente_id).eq('status', 'ativo').then(({ data }) => {
@@ -90,6 +98,9 @@ export default function NovaOS() {
         if (data && data.length === 1) {
           setForm(prev => ({ ...prev, contrato_id: data[0].id }));
           setTiposHora(data[0].contrato_tipos_hora || []);
+        } else {
+          setForm(prev => ({ ...prev, contrato_id: '', tipo_hora_id: '' }));
+          setTiposHora([]);
         }
       });
     } else {
@@ -98,11 +109,12 @@ export default function NovaOS() {
     }
   }, [form.cliente_id]);
 
-  // Atualizar tipos de hora quando contrato muda
+  // Update hour types when contract changes
   useEffect(() => {
     const contrato = contratos.find((c: any) => c.id === form.contrato_id);
     setTiposHora(contrato?.contrato_tipos_hora || []);
-  }, [form.contrato_id, contratos]);
+    setForm(prev => ({ ...prev, tipo_hora_id: '' }));
+  }, [form.contrato_id]);
 
   const handleChamadoChange = (chamadoId: string) => {
     const chamado = chamados.find(c => c.id === chamadoId);
@@ -113,31 +125,29 @@ export default function NovaOS() {
     }));
   };
 
-  const calcularTotal = () => {
-    const materiais = parseFloat(form.valor_materiais) || 0;
-    const maoObra = parseFloat(form.valor_mao_obra) || 0;
-    return materiais + maoObra;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.cliente_id) {
-      toast({
-        title: 'Erro',
-        description: 'Selecione um cliente.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro', description: 'Selecione um cliente.', variant: 'destructive' });
       return;
     }
 
-    // ❌ OS sem contrato — bloquear se cliente tem contrato ativo mas não foi selecionado
+    // Block: OS without contract when client has active contracts
     if (contratos.length > 0 && !form.contrato_id) {
-      toast({
-        title: 'Contrato obrigatório',
-        description: 'Este cliente possui contrato ativo. Selecione o contrato antes de criar a OS.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Contrato obrigatório', description: 'Este cliente possui contrato ativo. Selecione o contrato.', variant: 'destructive' });
+      return;
+    }
+
+    // Block: OS without hour type when contract is selected
+    if (form.contrato_id && !form.tipo_hora_id) {
+      toast({ title: 'Tipo de hora obrigatório', description: 'Selecione o tipo de hora do contrato.', variant: 'destructive' });
+      return;
+    }
+
+    // Block: no client has contract but no active contract exists
+    if (contratos.length === 0 && form.cliente_id) {
+      toast({ title: 'Sem contrato ativo', description: 'Este cliente não possui contrato ativo. Cadastre um contrato antes de criar a OS.', variant: 'destructive' });
       return;
     }
 
@@ -152,12 +162,12 @@ export default function NovaOS() {
           tecnico_id: form.tecnico_id || user?.id,
           contrato_id: form.contrato_id || null,
           tipo_hora_id: form.tipo_hora_id || null,
+          tipo_atendimento: (form.tipo_atendimento as TipoAtendimento) || null,
           descricao_servico: form.descricao_servico || null,
-          horas_trabalhadas: parseFloat(form.horas_trabalhadas) || 0,
-          materiais_usados: form.materiais_usados || null,
-          valor_materiais: parseFloat(form.valor_materiais) || 0,
-          valor_mao_obra: parseFloat(form.valor_mao_obra) || 0,
-          valor_total: calcularTotal(),
+          horas_trabalhadas: horas,
+          valor_mao_obra: valorMaoObra,
+          valor_materiais: 0,
+          valor_total: valorMaoObra,
           observacoes: form.observacoes || null,
           data_inicio: new Date().toISOString(),
           status: 'em_execucao',
@@ -168,27 +178,15 @@ export default function NovaOS() {
 
       if (error) throw error;
 
-      // Se veio de um chamado, atualizar status do chamado
       if (form.chamado_id) {
-        await supabase
-          .from('chamados')
-          .update({ status: 'em_atendimento' })
-          .eq('id', form.chamado_id);
+        await supabase.from('chamados').update({ status: 'em_atendimento' }).eq('id', form.chamado_id);
       }
 
-      toast({
-        title: 'Sucesso',
-        description: `OS #${data.numero} criada com sucesso.`,
-      });
-
+      toast({ title: 'Sucesso', description: `OS #${data.numero} criada com sucesso.` });
       navigate(`/app/ordens-servico/${data.id}`);
     } catch (error: any) {
       console.error('Erro ao criar OS:', error);
-      toast({
-        title: 'Erro',
-        description: error.message || 'Não foi possível criar a ordem de serviço.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro', description: error.message || 'Não foi possível criar a ordem de serviço.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -202,42 +200,36 @@ export default function NovaOS() {
     );
   }
 
+  const noContract = form.cliente_id && contratos.length === 0;
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-navy">Nova Ordem de Serviço</h1>
-          <p className="text-muted-foreground">
-            Registre uma nova OS para atendimento
-          </p>
+          <p className="text-muted-foreground">Registre uma nova OS vinculada ao contrato</p>
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Informações Básicas</CardTitle>
-            <CardDescription>
-              Selecione o cliente e, opcionalmente, vincule a um chamado existente
-            </CardDescription>
+            <CardDescription>Selecione o cliente e vincule ao contrato</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              {/* Chamado (opcional) */}
+              {/* Chamado */}
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="chamado">Chamado (opcional)</Label>
+                <Label>Chamado (opcional)</Label>
                 <Select
                   value={form.chamado_id || "avulsa"}
                   onValueChange={(value) => handleChamadoChange(value === "avulsa" ? "" : value)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Vincular a um chamado..." />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Vincular a um chamado..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="avulsa">OS Avulsa (sem chamado)</SelectItem>
                     {chamados.map((chamado) => (
@@ -251,20 +243,16 @@ export default function NovaOS() {
 
               {/* Cliente */}
               <div className="space-y-2">
-                <Label htmlFor="cliente">Cliente *</Label>
+                <Label>Cliente *</Label>
                 <Select
                   value={form.cliente_id}
-                  onValueChange={(value) => setForm({ ...form, cliente_id: value })}
+                  onValueChange={(value) => setForm({ ...form, cliente_id: value, contrato_id: '', tipo_hora_id: '' })}
                   disabled={!!form.chamado_id}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o cliente" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
                   <SelectContent>
                     {clientes.map((cliente) => (
-                      <SelectItem key={cliente.id} value={cliente.id}>
-                        {cliente.nome_empresa}
-                      </SelectItem>
+                      <SelectItem key={cliente.id} value={cliente.id}>{cliente.nome_empresa}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -272,19 +260,12 @@ export default function NovaOS() {
 
               {/* Técnico */}
               <div className="space-y-2">
-                <Label htmlFor="tecnico">Técnico Responsável</Label>
-                <Select
-                  value={form.tecnico_id}
-                  onValueChange={(value) => setForm({ ...form, tecnico_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o técnico" />
-                  </SelectTrigger>
+                <Label>Técnico Responsável</Label>
+                <Select value={form.tecnico_id} onValueChange={(value) => setForm({ ...form, tecnico_id: value })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o técnico" /></SelectTrigger>
                   <SelectContent>
                     {tecnicos.map((tecnico) => (
-                      <SelectItem key={tecnico.user_id} value={tecnico.user_id}>
-                        {tecnico.nome}
-                      </SelectItem>
+                      <SelectItem key={tecnico.user_id} value={tecnico.user_id}>{tecnico.nome}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -292,19 +273,19 @@ export default function NovaOS() {
 
               {/* Contrato */}
               <div className="space-y-2">
-                <Label>Contrato {contratos.length > 0 ? '*' : '(nenhum ativo)'}</Label>
+                <Label>Contrato *</Label>
                 {contratos.length > 0 ? (
                   <Select value={form.contrato_id} onValueChange={(v) => setForm({ ...form, contrato_id: v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione o contrato" /></SelectTrigger>
                     <SelectContent>
                       {contratos.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>#{c.numero} - R$ {Number(c.valor_mensal).toFixed(2)}/mês</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>#{c.numero} - {c.horas_inclusas}h inclusas - R$ {Number(c.valor_mensal).toFixed(2)}/mês</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : (
                   <p className="text-sm text-muted-foreground pt-2">
-                    {form.cliente_id ? 'Nenhum contrato ativo para este cliente.' : 'Selecione um cliente primeiro.'}
+                    {form.cliente_id ? 'Nenhum contrato ativo.' : 'Selecione um cliente primeiro.'}
                   </p>
                 )}
               </div>
@@ -312,12 +293,12 @@ export default function NovaOS() {
               {/* Tipo de Hora */}
               {tiposHora.length > 0 && (
                 <div className="space-y-2">
-                  <Label>Tipo de Hora</Label>
+                  <Label>Tipo de Hora *</Label>
                   <Select value={form.tipo_hora_id} onValueChange={(v) => setForm({ ...form, tipo_hora_id: v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                     <SelectContent>
                       {tiposHora.map((t: any) => (
-                        <SelectItem key={t.id} value={t.id}>{t.nome} (R$ {Number(t.valor_hora_extra).toFixed(2)}/h extra)</SelectItem>
+                        <SelectItem key={t.id} value={t.id}>{t.nome} — R$ {Number(t.valor_hora_extra).toFixed(2)}/h</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -325,11 +306,19 @@ export default function NovaOS() {
               )}
             </div>
 
-            {/* Descrição do Serviço */}
+            {noContract && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Este cliente não possui contrato ativo. Cadastre um contrato antes de criar a OS.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Descrição */}
             <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição do Serviço</Label>
+              <Label>Descrição do Serviço</Label>
               <Textarea
-                id="descricao"
                 value={form.descricao_servico}
                 onChange={(e) => setForm({ ...form, descricao_servico: e.target.value })}
                 placeholder="Descreva os serviços a serem realizados..."
@@ -341,18 +330,31 @@ export default function NovaOS() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Detalhes do Serviço</CardTitle>
-            <CardDescription>
-              Registre horas, materiais e valores
-            </CardDescription>
+            <CardTitle>Lançamento de Horas</CardTitle>
+            <CardDescription>Os valores são calculados automaticamente pelo contrato</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Tipo de Atendimento */}
+              <div className="space-y-2">
+                <Label>Tipo de Atendimento</Label>
+                <Select
+                  value={form.tipo_atendimento}
+                  onValueChange={(v) => setForm({ ...form, tipo_atendimento: v as TipoAtendimento })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(TIPO_ATENDIMENTO_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Horas */}
               <div className="space-y-2">
-                <Label htmlFor="horas">Horas Trabalhadas</Label>
+                <Label>Horas Trabalhadas</Label>
                 <Input
-                  id="horas"
                   type="number"
                   step="0.5"
                   min="0"
@@ -361,95 +363,55 @@ export default function NovaOS() {
                   placeholder="0"
                 />
               </div>
-
-              {/* Valor Mão de Obra */}
-              <div className="space-y-2">
-                <Label htmlFor="maoObra">Valor Mão de Obra (R$)</Label>
-                <Input
-                  id="maoObra"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.valor_mao_obra}
-                  onChange={(e) => setForm({ ...form, valor_mao_obra: e.target.value })}
-                  placeholder="0,00"
-                />
-              </div>
-
-              {/* Valor Materiais */}
-              <div className="space-y-2">
-                <Label htmlFor="valorMateriais">Valor Materiais (R$)</Label>
-                <Input
-                  id="valorMateriais"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.valor_materiais}
-                  onChange={(e) => setForm({ ...form, valor_materiais: e.target.value })}
-                  placeholder="0,00"
-                />
-              </div>
             </div>
 
-            {/* Materiais Usados */}
-            <div className="space-y-2">
-              <Label htmlFor="materiais">Materiais Utilizados</Label>
-              <Textarea
-                id="materiais"
-                value={form.materiais_usados}
-                onChange={(e) => setForm({ ...form, materiais_usados: e.target.value })}
-                placeholder="Liste os materiais utilizados..."
-                rows={3}
-              />
-            </div>
+            {/* Auto-calculated summary */}
+            {form.tipo_hora_id && horas > 0 && (
+              <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tipo de hora:</span>
+                  <span className="font-medium">{selectedTipoHora?.nome}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor/hora:</span>
+                  <span className="font-medium">R$ {valorHora.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Horas:</span>
+                  <span className="font-medium">{horas}h</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t">
+                  <span className="font-medium">Valor do Serviço:</span>
+                  <span className="text-lg font-bold text-navy">
+                    R$ {valorMaoObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Observações */}
             <div className="space-y-2">
-              <Label htmlFor="obs">Observações</Label>
+              <Label>Observações</Label>
               <Textarea
-                id="obs"
                 value={form.observacoes}
                 onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
                 placeholder="Observações adicionais..."
                 rows={2}
               />
             </div>
-
-            {/* Total */}
-            <div className="pt-4 border-t">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-medium">Valor Total:</span>
-                <span className="text-2xl font-bold text-navy">
-                  R$ {calcularTotal().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
-        {/* Actions */}
         <div className="flex gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate(-1)}
-            className="flex-1"
-          >
+          <Button type="button" variant="outline" onClick={() => navigate(-1)} className="flex-1">
             Cancelar
           </Button>
           <Button
             type="submit"
             className="flex-1 bg-navy hover:bg-petrol"
-            disabled={loading}
+            disabled={loading || !!noContract}
           >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Criando...
-              </>
-            ) : (
-              'Criar Ordem de Serviço'
-            )}
+            {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Criando...</>) : 'Criar Ordem de Serviço'}
           </Button>
         </div>
       </form>
