@@ -302,6 +302,51 @@ export type Database = {
           },
         ]
       }
+      despesas: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          created_by: string
+          data: string
+          data_pagamento: string | null
+          descricao: string
+          forma_pagamento: string | null
+          id: string
+          observacoes: string | null
+          pago: boolean
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          created_by: string
+          data?: string
+          data_pagamento?: string | null
+          descricao: string
+          forma_pagamento?: string | null
+          id?: string
+          observacoes?: string | null
+          pago?: boolean
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          created_by?: string
+          data?: string
+          data_pagamento?: string | null
+          descricao?: string
+          forma_pagamento?: string | null
+          id?: string
+          observacoes?: string | null
+          pago?: boolean
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       faturas: {
         Row: {
           cliente_id: string

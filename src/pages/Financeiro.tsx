@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -29,9 +30,17 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
+  TrendingDown,
+  Wallet,
+  FileText,
+  Receipt,
 } from 'lucide-react';
-import { format, isAfter, isBefore, startOfDay } from 'date-fns';
+import { format, isBefore, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { DespesasTab } from '@/components/financeiro/DespesasTab';
+import { ContasPagasTab } from '@/components/financeiro/ContasPagasTab';
+import { ContasReceberTab } from '@/components/financeiro/ContasReceberTab';
+import { OSFaturadasTab } from '@/components/financeiro/OSFaturadasTab';
 
 export default function Financeiro() {
   const { isAdmin, isFinanceiro } = useAuth();
@@ -82,11 +91,7 @@ export default function Financeiro() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Sucesso',
-        description: 'Fatura marcada como paga.',
-      });
-
+      toast({ title: 'Sucesso', description: 'Fatura marcada como paga.' });
       fetchFaturas();
     } catch (error) {
       console.error('Erro ao atualizar fatura:', error);
@@ -131,7 +136,6 @@ export default function Financeiro() {
     return matchesSearch && matchesStatus;
   });
 
-  // Calcular totais
   const totalAReceber = faturas
     .filter((f) => f.status === 'em_aberto')
     .reduce((acc, f) => acc + Number(f.valor_total), 0);
@@ -159,21 +163,16 @@ export default function Financeiro() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-navy">Financeiro</h1>
-        <p className="text-muted-foreground">
-          Controle de faturas e contas a receber
-        </p>
+        <p className="text-muted-foreground">Fluxo de caixa, despesas e controle financeiro</p>
       </div>
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              A Receber
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">A Receber</CardTitle>
             <DollarSign className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -182,12 +181,9 @@ export default function Financeiro() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Atrasado
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Atrasado</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -196,12 +192,9 @@ export default function Financeiro() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Recebido (Mês)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Recebido (Mês)</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -212,108 +205,138 @@ export default function Financeiro() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por número ou cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os Status</SelectItem>
-                <SelectItem value="em_aberto">Em Aberto</SelectItem>
-                <SelectItem value="atrasado">Atrasado</SelectItem>
-                <SelectItem value="pago">Pago</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Tabs */}
+      <Tabs defaultValue="faturas" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="faturas" className="flex items-center gap-1 text-xs sm:text-sm">
+            <FileText className="h-4 w-4 hidden sm:block" />
+            Faturas
+          </TabsTrigger>
+          <TabsTrigger value="despesas" className="flex items-center gap-1 text-xs sm:text-sm">
+            <TrendingDown className="h-4 w-4 hidden sm:block" />
+            Despesas
+          </TabsTrigger>
+          <TabsTrigger value="contas-pagas" className="flex items-center gap-1 text-xs sm:text-sm">
+            <CheckCircle className="h-4 w-4 hidden sm:block" />
+            Contas Pagas
+          </TabsTrigger>
+          <TabsTrigger value="contas-receber" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Wallet className="h-4 w-4 hidden sm:block" />
+            A Receber
+          </TabsTrigger>
+          <TabsTrigger value="os-faturadas" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Receipt className="h-4 w-4 hidden sm:block" />
+            OS Faturadas
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Tab: Faturas (conteúdo existente) */}
+        <TabsContent value="faturas">
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="relative md:col-span-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar por número ou cliente..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os Status</SelectItem>
+                      <SelectItem value="em_aberto">Em Aberto</SelectItem>
+                      <SelectItem value="atrasado">Atrasado</SelectItem>
+                      <SelectItem value="pago">Pago</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-0">
+                {loading ? (
+                  <p className="text-center text-muted-foreground py-8">Carregando...</p>
+                ) : filteredFaturas.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">Nenhuma fatura encontrada</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nº</TableHead>
+                          <TableHead>Cliente</TableHead>
+                          <TableHead>Valor</TableHead>
+                          <TableHead>Vencimento</TableHead>
+                          <TableHead>Status</TableHead>
+                          {(isAdmin || isFinanceiro) && <TableHead className="w-[120px]">Ações</TableHead>}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredFaturas.map((fatura) => {
+                          const status = getStatusBadge(fatura.status, fatura.data_vencimento);
+                          const StatusIcon = status.icon;
+                          return (
+                            <TableRow key={fatura.id}>
+                              <TableCell className="font-medium text-navy">#{fatura.numero}</TableCell>
+                              <TableCell>{fatura.cliente?.nome_empresa || '-'}</TableCell>
+                              <TableCell className="font-medium">
+                                R$ {Number(fatura.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </TableCell>
+                              <TableCell>
+                                {format(new Date(fatura.data_vencimento), 'dd/MM/yyyy', { locale: ptBR })}
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={status.style}>
+                                  <StatusIcon className="h-3 w-3 mr-1" />
+                                  {status.label}
+                                </Badge>
+                              </TableCell>
+                              {(isAdmin || isFinanceiro) && (
+                                <TableCell>
+                                  {fatura.status !== 'pago' && (
+                                    <Button variant="outline" size="sm" onClick={() => handleMarcarPago(fatura)}>
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Pago
+                                    </Button>
+                                  )}
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          {loading ? (
-            <p className="text-center text-muted-foreground py-8">Carregando...</p>
-          ) : filteredFaturas.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              Nenhuma fatura encontrada
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nº</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Vencimento</TableHead>
-                    <TableHead>Status</TableHead>
-                    {(isAdmin || isFinanceiro) && (
-                      <TableHead className="w-[120px]">Ações</TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredFaturas.map((fatura) => {
-                    const status = getStatusBadge(fatura.status, fatura.data_vencimento);
-                    const StatusIcon = status.icon;
+        <TabsContent value="despesas">
+          <DespesasTab />
+        </TabsContent>
 
-                    return (
-                      <TableRow key={fatura.id}>
-                        <TableCell className="font-medium text-navy">
-                          #{fatura.numero}
-                        </TableCell>
-                        <TableCell>
-                          {fatura.cliente?.nome_empresa || '-'}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          R$ {Number(fatura.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(fatura.data_vencimento), 'dd/MM/yyyy', {
-                            locale: ptBR,
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={status.style}>
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {status.label}
-                          </Badge>
-                        </TableCell>
-                        {(isAdmin || isFinanceiro) && (
-                          <TableCell>
-                            {fatura.status !== 'pago' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleMarcarPago(fatura)}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Pago
-                              </Button>
-                            )}
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="contas-pagas">
+          <ContasPagasTab />
+        </TabsContent>
+
+        <TabsContent value="contas-receber">
+          <ContasReceberTab />
+        </TabsContent>
+
+        <TabsContent value="os-faturadas">
+          <OSFaturadasTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
