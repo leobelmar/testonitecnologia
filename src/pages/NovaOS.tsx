@@ -131,6 +131,16 @@ export default function NovaOS() {
       return;
     }
 
+    // ❌ OS sem contrato — bloquear se cliente tem contrato ativo mas não foi selecionado
+    if (contratos.length > 0 && !form.contrato_id) {
+      toast({
+        title: 'Contrato obrigatório',
+        description: 'Este cliente possui contrato ativo. Selecione o contrato antes de criar a OS.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -281,9 +291,9 @@ export default function NovaOS() {
               </div>
 
               {/* Contrato */}
-              {contratos.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Contrato</Label>
+              <div className="space-y-2">
+                <Label>Contrato {contratos.length > 0 ? '*' : '(nenhum ativo)'}</Label>
+                {contratos.length > 0 ? (
                   <Select value={form.contrato_id} onValueChange={(v) => setForm({ ...form, contrato_id: v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione o contrato" /></SelectTrigger>
                     <SelectContent>
@@ -292,8 +302,12 @@ export default function NovaOS() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-muted-foreground pt-2">
+                    {form.cliente_id ? 'Nenhum contrato ativo para este cliente.' : 'Selecione um cliente primeiro.'}
+                  </p>
+                )}
+              </div>
 
               {/* Tipo de Hora */}
               {tiposHora.length > 0 && (

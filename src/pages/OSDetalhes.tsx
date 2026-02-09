@@ -148,6 +148,24 @@ export default function OSDetalhes() {
     setSaving(true);
 
     try {
+      // ❌ Relatório sem validação — ao finalizar, exigir campos preenchidos
+      if (form.status === 'finalizada' && os.status !== 'finalizada') {
+        const erros: string[] = [];
+        if (!form.servicos_realizados?.trim()) erros.push('Serviços Realizados');
+        if (!form.horas_trabalhadas || parseFloat(form.horas_trabalhadas) <= 0) erros.push('Horas Trabalhadas');
+        if (!form.tecnico_id) erros.push('Técnico Responsável');
+
+        if (erros.length > 0) {
+          toast({
+            title: 'Relatório incompleto',
+            description: `Preencha antes de finalizar: ${erros.join(', ')}`,
+            variant: 'destructive',
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
       const updateData: any = {
         descricao_servico: form.descricao_servico || null,
         servicos_realizados: form.servicos_realizados || null,
@@ -204,6 +222,28 @@ export default function OSDetalhes() {
 
   const handleFaturar = async () => {
     if (!os) return;
+
+    // ❌ Fatura sem relatório — exigir relatório completo
+    if (!os.servicos_realizados?.trim()) {
+      toast({
+        title: 'Relatório obrigatório',
+        description: 'A OS precisa ter os Serviços Realizados preenchidos antes de faturar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // ❌ Fatura sem OS — já garantido pelo fluxo (fatura sempre criada a partir de OS)
+    // ❌ OS sem contrato — alertar se OS não tem contrato vinculado
+    if (!os.contrato_id) {
+      toast({
+        title: 'Contrato obrigatório',
+        description: 'A OS precisa estar vinculada a um contrato para ser faturada.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setFaturando(true);
 
     try {
