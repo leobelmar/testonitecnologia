@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          acao: string
+          created_at: string
+          dados_anteriores: Json | null
+          dados_novos: Json | null
+          detalhes: string | null
+          id: string
+          ip_address: string | null
+          registro_id: string | null
+          tabela: string | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+          user_nome: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          dados_anteriores?: Json | null
+          dados_novos?: Json | null
+          detalhes?: string | null
+          id?: string
+          ip_address?: string | null
+          registro_id?: string | null
+          tabela?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_nome?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          dados_anteriores?: Json | null
+          dados_novos?: Json | null
+          detalhes?: string | null
+          id?: string
+          ip_address?: string | null
+          registro_id?: string | null
+          tabela?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_nome?: string | null
+        }
+        Relationships: []
+      }
       chamados: {
         Row: {
           atribuido_a: string | null
