@@ -68,6 +68,7 @@ export default function OSDetalhes() {
   const [faturarDialogOpen, setFaturarDialogOpen] = useState(false);
   const [faturando, setFaturando] = useState(false);
   const [totalPecas, setTotalPecas] = useState(0);
+  const [contratosDisponiveis, setContratosDisponiveis] = useState<any[]>([]);
 
   const [form, setForm] = useState({
     descricao_servico: '',
@@ -134,6 +135,14 @@ export default function OSDetalhes() {
           .select('*')
           .eq('contrato_id', data.contrato_id);
         setTiposHora(tipos || []);
+      } else {
+        // Fetch available contracts for the client so user can link one
+        const { data: contratos } = await supabase
+          .from('contratos')
+          .select('*, contrato_tipos_hora(*)')
+          .eq('cliente_id', data.cliente_id)
+          .eq('status', 'ativo');
+        setContratosDisponiveis(contratos || []);
       }
     } catch (error) {
       console.error('Erro ao buscar OS:', error);
@@ -662,11 +671,50 @@ export default function OSDetalhes() {
                 </div>
               )}
 
-              {!os.contrato_id && (
+              {!os.contrato_id && contratosDisponiveis.length > 0 && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription className="space-y-3">
+                    <p>Esta OS não está vinculada a um contrato. Selecione o contrato para calcular os valores automaticamente.</p>
+                    <div className="flex gap-2 items-end">
+                      <Select
+                        onValueChange={async (contratoId) => {
+                          try {
+                            const contrato = contratosDisponiveis.find((c: any) => c.id === contratoId);
+                            const { error } = await supabase
+                              .from('ordens_servico')
+                              .update({ contrato_id: contratoId })
+                              .eq('id', os.id);
+                            if (error) throw error;
+                            setTiposHora(contrato?.contrato_tipos_hora || []);
+                            toast({ title: 'Contrato vinculado', description: 'Contrato vinculado com sucesso. Selecione o tipo de hora.' });
+                            fetchOS();
+                          } catch (err: any) {
+                            toast({ title: 'Erro', description: err.message, variant: 'destructive' });
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="max-w-xs">
+                          <SelectValue placeholder="Selecione o contrato..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contratosDisponiveis.map((c: any) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              #{c.numero} - {c.horas_inclusas}h inclusas - R$ {Number(c.valor_mensal).toFixed(2)}/mês
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {!os.contrato_id && contratosDisponiveis.length === 0 && (
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Esta OS não está vinculada a um contrato. Os valores não podem ser calculados automaticamente.
+                    Esta OS não está vinculada a um contrato e o cliente não possui contrato ativo. Cadastre um contrato primeiro.
                   </AlertDescription>
                 </Alert>
               )}
