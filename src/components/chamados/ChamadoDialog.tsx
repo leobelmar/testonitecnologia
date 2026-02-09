@@ -330,12 +330,22 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
       const valorMaoObra = parseFloat(osForm.valor_mao_obra) || 0;
       const valorTotal = valorMateriais + valorMaoObra;
 
+      // Auto-link active contract
+      const { data: contratos } = await supabase
+        .from('contratos')
+        .select('id')
+        .eq('cliente_id', chamado.cliente_id)
+        .eq('status', 'ativo')
+        .limit(1);
+      const contratoId = contratos && contratos.length > 0 ? contratos[0].id : null;
+
       const { data: novaOS, error: osError } = await supabase
         .from('ordens_servico')
         .insert({
           cliente_id: chamado.cliente_id,
           chamado_id: chamado.id,
           tecnico_id: user?.id,
+          contrato_id: contratoId,
           descricao_servico: osForm.descricao_servico || chamado.descricao,
           horas_trabalhadas: parseFloat(osForm.horas_trabalhadas) || 0,
           materiais_usados: osForm.materiais_usados || null,
