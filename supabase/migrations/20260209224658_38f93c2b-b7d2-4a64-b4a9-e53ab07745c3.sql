@@ -1,0 +1,1 @@
+ALTER TABLE public.ordens_servico ADD COLUMN desconto numeric DEFAULT 0;

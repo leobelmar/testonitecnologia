@@ -79,6 +79,7 @@ export default function OSDetalhes() {
     observacoes: '',
     status: '' as OSStatus,
     tecnico_id: '',
+    desconto: '',
   });
 
   const [faturaForm, setFaturaForm] = useState({
@@ -93,7 +94,8 @@ export default function OSDetalhes() {
   const horas = parseFloat(form.horas_trabalhadas) || 0;
   const valorMaoObra = valorHora * horas;
 
-  const calcularTotal = () => valorMaoObra + totalPecas;
+  const desconto = parseFloat(form.desconto) || 0;
+  const calcularTotal = () => Math.max(0, valorMaoObra + totalPecas - desconto);
 
   useEffect(() => {
     if (id) {
@@ -126,6 +128,7 @@ export default function OSDetalhes() {
         observacoes: data.observacoes || '',
         status: data.status,
         tecnico_id: data.tecnico_id || '',
+        desconto: data.desconto?.toString() || '',
       });
 
       // Fetch hour types from contract
@@ -216,6 +219,7 @@ export default function OSDetalhes() {
         tipo_hora_id: form.tipo_hora_id || null,
         valor_mao_obra: valorMaoObra,
         valor_materiais: totalPecas,
+        desconto: desconto,
         valor_total: calcularTotal(),
         observacoes: form.observacoes || null,
         status: form.status,
@@ -630,6 +634,20 @@ export default function OSDetalhes() {
                   />
                 </div>
 
+                {/* Desconto */}
+                <div className="space-y-2">
+                  <Label>Desconto (R$)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.desconto}
+                    onChange={(e) => setForm({ ...form, desconto: e.target.value })}
+                    disabled={!canEdit || isLocked}
+                    placeholder="0,00"
+                  />
+                </div>
+
                 {/* Status */}
                 <div className="space-y-2">
                   <Label>Status</Label>
@@ -671,6 +689,12 @@ export default function OSDetalhes() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Peças/materiais:</span>
                       <span>R$ {totalPecas.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {desconto > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Desconto:</span>
+                      <span>- R$ {desconto.toFixed(2)}</span>
                     </div>
                   )}
                   <Separator />

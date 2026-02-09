@@ -746,6 +746,7 @@ export type Database = {
           created_by: string
           data_fim: string | null
           data_inicio: string | null
+          desconto: number | null
           descricao_servico: string | null
           horas_trabalhadas: number | null
           id: string
@@ -773,6 +774,7 @@ export type Database = {
           created_by: string
           data_fim?: string | null
           data_inicio?: string | null
+          desconto?: number | null
           descricao_servico?: string | null
           horas_trabalhadas?: number | null
           id?: string
@@ -800,6 +802,7 @@ export type Database = {
           created_by?: string
           data_fim?: string | null
           data_inicio?: string | null
+          desconto?: number | null
           descricao_servico?: string | null
           horas_trabalhadas?: number | null
           id?: string
