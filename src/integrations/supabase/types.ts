@@ -907,6 +907,68 @@ export type Database = {
           },
         ]
       }
+      perfis_permissao: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          editavel: boolean | null
+          id: string
+          is_admin: boolean | null
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          editavel?: boolean | null
+          id?: string
+          is_admin?: boolean | null
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          editavel?: boolean | null
+          id?: string
+          is_admin?: boolean | null
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      permissoes_modulo: {
+        Row: {
+          edicao: boolean | null
+          id: string
+          leitura: boolean | null
+          modulo: string
+          perfil_id: string
+        }
+        Insert: {
+          edicao?: boolean | null
+          id?: string
+          leitura?: boolean | null
+          modulo: string
+          perfil_id: string
+        }
+        Update: {
+          edicao?: boolean | null
+          id?: string
+          leitura?: boolean | null
+          modulo?: string
+          perfil_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissoes_modulo_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfis_permissao"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planos: {
         Row: {
           ativo: boolean
@@ -987,6 +1049,7 @@ export type Database = {
           email: string
           id: string
           nome: string
+          perfil_permissao_id: string | null
           role: Database["public"]["Enums"]["app_role"]
           telefone: string | null
           updated_at: string
@@ -999,6 +1062,7 @@ export type Database = {
           email: string
           id?: string
           nome: string
+          perfil_permissao_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           telefone?: string | null
           updated_at?: string
@@ -1011,12 +1075,21 @@ export type Database = {
           email?: string
           id?: string
           nome?: string
+          perfil_permissao_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           telefone?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_perfil_permissao_id_fkey"
+            columns: ["perfil_permissao_id"]
+            isOneToOne: false
+            referencedRelation: "perfis_permissao"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1038,6 +1111,10 @@ export type Database = {
       get_user_role: {
         Args: { target_user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_module_permission: {
+        Args: { p_module: string; p_permission?: string }
+        Returns: boolean
       }
       is_admin: { Args: { target_user_id?: string }; Returns: boolean }
       is_financeiro: { Args: { target_user_id?: string }; Returns: boolean }

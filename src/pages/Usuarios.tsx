@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Profile, AppRole, Convite } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { PerfilPermissao } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +43,7 @@ export default function Usuarios() {
   const { toast } = useToast();
   const [usuarios, setUsuarios] = useState<Profile[]>([]);
   const [convites, setConvites] = useState<Convite[]>([]);
+  const [perfis, setPerfis] = useState<PerfilPermissao[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -53,7 +55,21 @@ export default function Usuarios() {
   useEffect(() => {
     fetchUsuarios();
     fetchConvites();
+    fetchPerfis();
   }, []);
+
+  const fetchPerfis = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('perfis_permissao')
+        .select('*')
+        .order('nome');
+      if (error) throw error;
+      setPerfis(data as unknown as PerfilPermissao[]);
+    } catch (error) {
+      console.error('Erro ao buscar perfis:', error);
+    }
+  };
 
   const fetchUsuarios = async () => {
     try {
@@ -165,28 +181,40 @@ export default function Usuarios() {
     return { style: styles[role], label: labels[role] };
   };
 
-  const handleRoleChange = async (userId: string, newRole: AppRole) => {
+  const handlePerfilChange = async (userId: string, perfilId: string) => {
     try {
+      // Find perfil to get the corresponding role
+      const perfil = perfis.find((p) => p.id === perfilId);
+      let newRole: AppRole = 'cliente';
+      if (perfil) {
+        if (perfil.is_admin) newRole = 'admin';
+        else if (perfil.nome.toLowerCase().includes('técnico') || perfil.nome.toLowerCase().includes('tecnico')) newRole = 'tecnico';
+        else if (perfil.nome.toLowerCase().includes('financeiro')) newRole = 'financeiro';
+        else newRole = 'tecnico'; // default for custom profiles
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole })
+        .update({ perfil_permissao_id: perfilId, role: newRole })
         .eq('user_id', userId);
 
       if (error) throw error;
 
       setUsuarios((prev) =>
-        prev.map((u) => (u.user_id === userId ? { ...u, role: newRole } : u))
+        prev.map((u) =>
+          u.user_id === userId ? { ...u, role: newRole } : u
+        )
       );
 
       toast({
         title: 'Sucesso',
-        description: 'Permissão do usuário atualizada.',
+        description: 'Perfil do usuário atualizado.',
       });
     } catch (error: any) {
-      console.error('Erro ao atualizar role:', error);
+      console.error('Erro ao atualizar perfil:', error);
       toast({
         title: 'Erro',
-        description: error.message || 'Não foi possível atualizar a permissão.',
+        description: error.message || 'Não foi possível atualizar o perfil.',
         variant: 'destructive',
       });
     }
@@ -311,23 +339,30 @@ export default function Usuarios() {
                           </TableCell>
                           <TableCell>{usuario.email}</TableCell>
                           <TableCell>
-                            <Select
-                              value={usuario.role}
-                              onValueChange={(value: AppRole) =>
-                                handleRoleChange(usuario.user_id, value)
-                              }
-                              disabled={isCurrentUser}
-                            >
-                              <SelectTrigger className="w-[140px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="admin">Administrador</SelectItem>
-                                <SelectItem value="tecnico">Técnico</SelectItem>
-                                <SelectItem value="financeiro">Financeiro</SelectItem>
-                                <SelectItem value="cliente">Cliente</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            {usuario.role === 'cliente' ? (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                Cliente
+                              </Badge>
+                            ) : (
+                              <Select
+                                value={usuario.perfil_permissao_id || ''}
+                                onValueChange={(value) =>
+                                  handlePerfilChange(usuario.user_id, value)
+                                }
+                                disabled={isCurrentUser}
+                              >
+                                <SelectTrigger className="w-[160px]">
+                                  <SelectValue placeholder="Selecionar perfil" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {perfis.map((perfil) => (
+                                    <SelectItem key={perfil.id} value={perfil.id}>
+                                      {perfil.nome}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Badge

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/helpdesk/AppLayout";
+import { ProtectedRoute } from "@/components/helpdesk/ProtectedRoute";
 
 // Pages - Site institucional
 import Index from "./pages/Index";
@@ -29,6 +30,8 @@ import Contratos from "./pages/Contratos";
 import NovoContrato from "./pages/NovoContrato";
 import ContratoDetalhes from "./pages/ContratoDetalhes";
 import Estoque from "./pages/Estoque";
+import Configuracoes from "./pages/Configuracoes";
+import PerfisPermissao from "./pages/PerfisPermissao";
 
 const queryClient = new QueryClient();
 
@@ -48,23 +51,25 @@ const App = () => (
 
             {/* Sistema Help Desk (protegido) */}
             <Route path="/app" element={<AppLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="clientes" element={<Clientes />} />
-              <Route path="clientes/novo" element={<NovoCliente />} />
-              <Route path="chamados" element={<Chamados />} />
-              <Route path="chamados/novo" element={<NovoChamado />} />
-              <Route path="chamados/:id" element={<ChamadoDetalhes />} />
-              <Route path="ordens-servico" element={<OrdensServico />} />
-              <Route path="ordens-servico/nova" element={<NovaOS />} />
-              <Route path="ordens-servico/:id" element={<OSDetalhes />} />
-              <Route path="financeiro" element={<Financeiro />} />
-              <Route path="usuarios" element={<Usuarios />} />
-              <Route path="tecnicos" element={<Tecnicos />} />
-              <Route path="auditoria" element={<Auditoria />} />
-              <Route path="contratos" element={<Contratos />} />
-              <Route path="contratos/novo" element={<NovoContrato />} />
-              <Route path="contratos/:id" element={<ContratoDetalhes />} />
-              <Route path="estoque" element={<Estoque />} />
+              <Route index element={<ProtectedRoute modulo="dashboard"><Dashboard /></ProtectedRoute>} />
+              <Route path="clientes" element={<ProtectedRoute modulo="clientes"><Clientes /></ProtectedRoute>} />
+              <Route path="clientes/novo" element={<ProtectedRoute modulo="novo_cliente" requireEdit><NovoCliente /></ProtectedRoute>} />
+              <Route path="chamados" element={<ProtectedRoute modulo="chamados"><Chamados /></ProtectedRoute>} />
+              <Route path="chamados/novo" element={<ProtectedRoute modulo="chamados" requireEdit><NovoChamado /></ProtectedRoute>} />
+              <Route path="chamados/:id" element={<ProtectedRoute modulo="chamados"><ChamadoDetalhes /></ProtectedRoute>} />
+              <Route path="ordens-servico" element={<ProtectedRoute modulo="ordens_servico"><OrdensServico /></ProtectedRoute>} />
+              <Route path="ordens-servico/nova" element={<ProtectedRoute modulo="ordens_servico" requireEdit><NovaOS /></ProtectedRoute>} />
+              <Route path="ordens-servico/:id" element={<ProtectedRoute modulo="ordens_servico"><OSDetalhes /></ProtectedRoute>} />
+              <Route path="financeiro" element={<ProtectedRoute modulo="financeiro"><Financeiro /></ProtectedRoute>} />
+              <Route path="usuarios" element={<ProtectedRoute modulo="usuarios"><Usuarios /></ProtectedRoute>} />
+              <Route path="tecnicos" element={<ProtectedRoute modulo="tecnicos"><Tecnicos /></ProtectedRoute>} />
+              <Route path="auditoria" element={<ProtectedRoute modulo="auditoria"><Auditoria /></ProtectedRoute>} />
+              <Route path="contratos" element={<ProtectedRoute modulo="contratos"><Contratos /></ProtectedRoute>} />
+              <Route path="contratos/novo" element={<ProtectedRoute modulo="contratos" requireEdit><NovoContrato /></ProtectedRoute>} />
+              <Route path="contratos/:id" element={<ProtectedRoute modulo="contratos"><ContratoDetalhes /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute modulo="estoque"><Estoque /></ProtectedRoute>} />
+              <Route path="configuracoes" element={<ProtectedRoute modulo="configuracoes"><Configuracoes /></ProtectedRoute>} />
+              <Route path="configuracoes/perfis" element={<ProtectedRoute modulo="configuracoes"><PerfisPermissao /></ProtectedRoute>} />
             </Route>
 
             {/* 404 */}

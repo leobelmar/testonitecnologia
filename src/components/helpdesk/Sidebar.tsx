@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions, ModuleName } from '@/hooks/usePermissions';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -26,92 +27,38 @@ interface NavItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles: ('admin' | 'tecnico' | 'financeiro' | 'cliente')[];
+  modulo: ModuleName | null; // null = always visible for role-based (cliente)
+  clienteVisible?: boolean; // visible for client role
 }
 
 const navItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: '/app',
-    icon: LayoutDashboard,
-    roles: ['admin', 'tecnico', 'financeiro', 'cliente'],
-  },
-  {
-    title: 'Clientes',
-    href: '/app/clientes',
-    icon: Building2,
-    roles: ['admin', 'financeiro'],
-  },
-  {
-    title: 'Novo Cliente',
-    href: '/app/clientes/novo',
-    icon: UserPlus,
-    roles: ['admin'],
-  },
-  {
-    title: 'Chamados',
-    href: '/app/chamados',
-    icon: Ticket,
-    roles: ['admin', 'tecnico', 'financeiro', 'cliente'],
-  },
-  {
-    title: 'Ordens de Serviço',
-    href: '/app/ordens-servico',
-    icon: FileText,
-    roles: ['admin', 'tecnico', 'financeiro', 'cliente'],
-  },
-  {
-    title: 'Financeiro',
-    href: '/app/financeiro',
-    icon: DollarSign,
-    roles: ['admin', 'financeiro', 'cliente'],
-  },
-  {
-    title: 'Contratos',
-    href: '/app/contratos',
-    icon: ScrollText,
-    roles: ['admin', 'financeiro', 'cliente'],
-  },
-  {
-    title: 'Estoque',
-    href: '/app/estoque',
-    icon: Package,
-    roles: ['admin', 'tecnico'],
-  },
-  {
-    title: 'Técnicos',
-    href: '/app/tecnicos',
-    icon: Wrench,
-    roles: ['admin'],
-  },
-  {
-    title: 'Usuários',
-    href: '/app/usuarios',
-    icon: UserCog,
-    roles: ['admin'],
-  },
-  {
-    title: 'Auditoria',
-    href: '/app/auditoria',
-    icon: Shield,
-    roles: ['admin'],
-  },
-  {
-    title: 'Configurações',
-    href: '/app/configuracoes',
-    icon: Settings,
-    roles: ['admin'],
-  },
+  { title: 'Dashboard', href: '/app', icon: LayoutDashboard, modulo: 'dashboard', clienteVisible: true },
+  { title: 'Clientes', href: '/app/clientes', icon: Building2, modulo: 'clientes' },
+  { title: 'Novo Cliente', href: '/app/clientes/novo', icon: UserPlus, modulo: 'novo_cliente' },
+  { title: 'Chamados', href: '/app/chamados', icon: Ticket, modulo: 'chamados', clienteVisible: true },
+  { title: 'Ordens de Serviço', href: '/app/ordens-servico', icon: FileText, modulo: 'ordens_servico', clienteVisible: true },
+  { title: 'Financeiro', href: '/app/financeiro', icon: DollarSign, modulo: 'financeiro', clienteVisible: true },
+  { title: 'Contratos', href: '/app/contratos', icon: ScrollText, modulo: 'contratos', clienteVisible: true },
+  { title: 'Estoque', href: '/app/estoque', icon: Package, modulo: 'estoque' },
+  { title: 'Técnicos', href: '/app/tecnicos', icon: Wrench, modulo: 'tecnicos' },
+  { title: 'Usuários', href: '/app/usuarios', icon: UserCog, modulo: 'usuarios' },
+  { title: 'Auditoria', href: '/app/auditoria', icon: Shield, modulo: 'auditoria' },
+  { title: 'Configurações', href: '/app/configuracoes', icon: Settings, modulo: 'configuracoes' },
 ];
 
 export function Sidebar() {
-  const { profile, signOut, hasRole } = useAuth();
+  const { profile, signOut, isCliente } = useAuth();
+  const { canRead, loading: permissionsLoading } = usePermissions();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const filteredItems = navItems.filter((item) =>
-    item.roles.some((role) => hasRole([role]))
-  );
+  const filteredItems = navItems.filter((item) => {
+    // Clientes usam acesso fixo
+    if (isCliente) return item.clienteVisible ?? false;
+    // Para outros usuários, verificar permissão de leitura
+    if (!item.modulo) return true;
+    return canRead(item.modulo);
+  });
 
   const handleSignOut = async () => {
     await signOut();
