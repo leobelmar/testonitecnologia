@@ -672,6 +672,70 @@ export type Database = {
           },
         ]
       }
+      movimentacoes_estoque: {
+        Row: {
+          created_at: string
+          created_by: string
+          despesa_id: string | null
+          id: string
+          observacoes: string | null
+          os_id: string | null
+          produto_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["movimentacao_tipo"]
+          valor_total: number
+          valor_unitario: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          despesa_id?: string | null
+          id?: string
+          observacoes?: string | null
+          os_id?: string | null
+          produto_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["movimentacao_tipo"]
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          despesa_id?: string | null
+          id?: string
+          observacoes?: string | null
+          os_id?: string | null
+          produto_id?: string
+          quantidade?: number
+          tipo?: Database["public"]["Enums"]["movimentacao_tipo"]
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentacoes_estoque_despesa_id_fkey"
+            columns: ["despesa_id"]
+            isOneToOne: false
+            referencedRelation: "despesas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_estoque_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_estoque_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ordens_servico: {
         Row: {
           assinatura_url: string | null
@@ -776,6 +840,61 @@ export type Database = {
           },
         ]
       }
+      os_pecas: {
+        Row: {
+          created_at: string
+          id: string
+          movimentacao_id: string | null
+          os_id: string
+          produto_id: string
+          quantidade: number
+          valor_total: number
+          valor_unitario: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          movimentacao_id?: string | null
+          os_id: string
+          produto_id: string
+          quantidade?: number
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          movimentacao_id?: string | null
+          os_id?: string
+          produto_id?: string
+          quantidade?: number
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "os_pecas_movimentacao_id_fkey"
+            columns: ["movimentacao_id"]
+            isOneToOne: false
+            referencedRelation: "movimentacoes_estoque"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "os_pecas_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "os_pecas_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planos: {
         Row: {
           ativo: boolean
@@ -803,6 +922,48 @@ export type Database = {
           nome?: string
           updated_at?: string
           valor_mensal?: number
+        }
+        Relationships: []
+      }
+      produtos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          created_by: string
+          custo: number
+          estoque_minimo: number
+          id: string
+          modelo: string | null
+          nome: string
+          quantidade: number
+          updated_at: string
+          venda: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          created_by: string
+          custo?: number
+          estoque_minimo?: number
+          id?: string
+          modelo?: string | null
+          nome: string
+          quantidade?: number
+          updated_at?: string
+          venda?: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          created_by?: string
+          custo?: number
+          estoque_minimo?: number
+          id?: string
+          modelo?: string | null
+          nome?: string
+          quantidade?: number
+          updated_at?: string
+          venda?: number
         }
         Relationships: []
       }
@@ -888,6 +1049,7 @@ export type Database = {
       contrato_status: "ativo" | "suspenso" | "cancelado" | "encerrado"
       convite_status: "pendente" | "aceito" | "expirado" | "cancelado"
       fatura_status: "em_aberto" | "pago" | "atrasado"
+      movimentacao_tipo: "entrada" | "saida" | "ajuste"
       os_status: "aberta" | "em_execucao" | "finalizada" | "faturada" | "pago"
       periodo_status: "ativo" | "fechado" | "faturado"
     }
@@ -1031,6 +1193,7 @@ export const Constants = {
       contrato_status: ["ativo", "suspenso", "cancelado", "encerrado"],
       convite_status: ["pendente", "aceito", "expirado", "cancelado"],
       fatura_status: ["em_aberto", "pago", "atrasado"],
+      movimentacao_tipo: ["entrada", "saida", "ajuste"],
       os_status: ["aberta", "em_execucao", "finalizada", "faturada", "pago"],
       periodo_status: ["ativo", "fechado", "faturado"],
     },

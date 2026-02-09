@@ -27,6 +27,8 @@ export default function NovaOS() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [chamados, setChamados] = useState<Chamado[]>([]);
   const [tecnicos, setTecnicos] = useState<Profile[]>([]);
+  const [contratos, setContratos] = useState<any[]>([]);
+  const [tiposHora, setTiposHora] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
@@ -34,6 +36,8 @@ export default function NovaOS() {
     cliente_id: '',
     chamado_id: '',
     tecnico_id: '',
+    contrato_id: '',
+    tipo_hora_id: '',
     descricao_servico: '',
     horas_trabalhadas: '',
     materiais_usados: '',
@@ -63,39 +67,42 @@ export default function NovaOS() {
 
   const fetchData = async () => {
     try {
-      // Buscar clientes
-      const { data: clientesData } = await supabase
-        .from('clientes')
-        .select('*')
-        .eq('status', 'ativo')
-        .order('nome_empresa');
-
-      setClientes(clientesData as Cliente[] || []);
-
-      // Buscar chamados abertos (não finalizados)
-      const { data: chamadosData } = await supabase
-        .from('chamados')
-        .select('*, cliente:clientes(nome_empresa)')
-        .not('status', 'in', '("finalizado","cancelado")')
-        .order('numero', { ascending: false });
-
-      setChamados(chamadosData as Chamado[] || []);
-
-      // Buscar técnicos
-      const { data: tecnicosData } = await supabase
-        .from('profiles')
-        .select('*')
-        .in('role', ['admin', 'tecnico'])
-        .eq('ativo', true)
-        .order('nome');
-
-      setTecnicos(tecnicosData as Profile[] || []);
+      const [clientesRes, chamadosRes, tecnicosRes] = await Promise.all([
+        supabase.from('clientes').select('*').eq('status', 'ativo').order('nome_empresa'),
+        supabase.from('chamados').select('*, cliente:clientes(nome_empresa)').not('status', 'in', '("finalizado","cancelado")').order('numero', { ascending: false }),
+        supabase.from('profiles').select('*').in('role', ['admin', 'tecnico']).eq('ativo', true).order('nome'),
+      ]);
+      setClientes(clientesRes.data as Cliente[] || []);
+      setChamados(chamadosRes.data as Chamado[] || []);
+      setTecnicos(tecnicosRes.data as Profile[] || []);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
       setLoadingData(false);
     }
   };
+
+  // Buscar contratos quando cliente muda
+  useEffect(() => {
+    if (form.cliente_id) {
+      supabase.from('contratos').select('*, contrato_tipos_hora(*)').eq('cliente_id', form.cliente_id).eq('status', 'ativo').then(({ data }) => {
+        setContratos(data || []);
+        if (data && data.length === 1) {
+          setForm(prev => ({ ...prev, contrato_id: data[0].id }));
+          setTiposHora(data[0].contrato_tipos_hora || []);
+        }
+      });
+    } else {
+      setContratos([]);
+      setTiposHora([]);
+    }
+  }, [form.cliente_id]);
+
+  // Atualizar tipos de hora quando contrato muda
+  useEffect(() => {
+    const contrato = contratos.find((c: any) => c.id === form.contrato_id);
+    setTiposHora(contrato?.contrato_tipos_hora || []);
+  }, [form.contrato_id, contratos]);
 
   const handleChamadoChange = (chamadoId: string) => {
     const chamado = chamados.find(c => c.id === chamadoId);
@@ -133,6 +140,8 @@ export default function NovaOS() {
           cliente_id: form.cliente_id,
           chamado_id: form.chamado_id || null,
           tecnico_id: form.tecnico_id || user?.id,
+          contrato_id: form.contrato_id || null,
+          tipo_hora_id: form.tipo_hora_id || null,
           descricao_servico: form.descricao_servico || null,
           horas_trabalhadas: parseFloat(form.horas_trabalhadas) || 0,
           materiais_usados: form.materiais_usados || null,
@@ -270,6 +279,36 @@ export default function NovaOS() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Contrato */}
+              {contratos.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Contrato</Label>
+                  <Select value={form.contrato_id} onValueChange={(v) => setForm({ ...form, contrato_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o contrato" /></SelectTrigger>
+                    <SelectContent>
+                      {contratos.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>#{c.numero} - R$ {Number(c.valor_mensal).toFixed(2)}/mês</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Tipo de Hora */}
+              {tiposHora.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Tipo de Hora</Label>
+                  <Select value={form.tipo_hora_id} onValueChange={(v) => setForm({ ...form, tipo_hora_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                    <SelectContent>
+                      {tiposHora.map((t: any) => (
+                        <SelectItem key={t.id} value={t.id}>{t.nome} (R$ {Number(t.valor_hora_extra).toFixed(2)}/h extra)</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             {/* Descrição do Serviço */}
