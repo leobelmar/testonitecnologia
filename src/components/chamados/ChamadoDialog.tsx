@@ -39,6 +39,7 @@ import {
   Calendar,
   Phone,
   Mail,
+  ExternalLink,
 } from 'lucide-react';
 import { PrintDialog } from '@/components/PrintDialog';
 import { format } from 'date-fns';
@@ -477,6 +478,18 @@ export function ChamadoDialog({ chamadoId, open, onOpenChange, onChamadoUpdated 
                 {prioridade.label}
               </Badge>
               <Badge className={status.style}>{status.label}</Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate(`/app/chamados/${chamado.id}`);
+                }}
+              >
+                <ExternalLink className="h-4 w-4 mr-1" />
+                Abrir Página Completa
+              </Button>
             </div>
             <DialogDescription className="text-base font-medium text-foreground">
               {chamado.titulo}
