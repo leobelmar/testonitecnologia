@@ -90,14 +90,15 @@ export default function NovaOS() {
     }
   };
 
-  // Fetch contracts when client changes
+  // Auto-link contract when client changes
   useEffect(() => {
     if (form.cliente_id) {
       supabase.from('contratos').select('*, contrato_tipos_hora(*)').eq('cliente_id', form.cliente_id).eq('status', 'ativo').then(({ data }) => {
         setContratos(data || []);
-        if (data && data.length === 1) {
-          setForm(prev => ({ ...prev, contrato_id: data[0].id }));
-          setTiposHora(data[0].contrato_tipos_hora || []);
+        if (data && data.length >= 1) {
+          const contrato = data[0];
+          setForm(prev => ({ ...prev, contrato_id: contrato.id }));
+          setTiposHora(contrato.contrato_tipos_hora || []);
         } else {
           setForm(prev => ({ ...prev, contrato_id: '', tipo_hora_id: '' }));
           setTiposHora([]);
@@ -271,18 +272,17 @@ export default function NovaOS() {
                 </Select>
               </div>
 
-              {/* Contrato */}
+              {/* Contrato (auto-vinculado) */}
               <div className="space-y-2">
-                <Label>Contrato *</Label>
-                {contratos.length > 0 ? (
-                  <Select value={form.contrato_id} onValueChange={(v) => setForm({ ...form, contrato_id: v })}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o contrato" /></SelectTrigger>
-                    <SelectContent>
-                      {contratos.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>#{c.numero} - {c.horas_inclusas}h inclusas - R$ {Number(c.valor_mensal).toFixed(2)}/mês</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Label>Contrato</Label>
+                {form.contrato_id && contratos.length > 0 ? (
+                  <div className="bg-muted/50 border rounded-md px-3 py-2 text-sm">
+                    <span className="font-medium">#{contratos.find((c: any) => c.id === form.contrato_id)?.numero}</span>
+                    {' — '}
+                    {contratos.find((c: any) => c.id === form.contrato_id)?.horas_inclusas}h inclusas
+                    {' — R$ '}
+                    {Number(contratos.find((c: any) => c.id === form.contrato_id)?.valor_mensal || 0).toFixed(2)}/mês
+                  </div>
                 ) : (
                   <p className="text-sm text-muted-foreground pt-2">
                     {form.cliente_id ? 'Nenhum contrato ativo.' : 'Selecione um cliente primeiro.'}
