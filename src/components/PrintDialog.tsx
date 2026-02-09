@@ -30,6 +30,7 @@ interface ChamadoPrintData {
   cliente_telefone?: string;
   cliente_email?: string;
   tipo?: string | null;
+  tecnico_nome?: string | null;
 }
 
 interface OSPrintData {
@@ -444,6 +445,12 @@ export function PrintDialog({ data, trigger, externalOpen, onExternalOpenChange 
             <div className="info-item">
               <div className="info-label">Tipo</div>
               <div className="info-value">{chamado.tipo}</div>
+            </div>
+          )}
+          {chamado.tecnico_nome && (
+            <div className="info-item">
+              <div className="info-label">Técnico Responsável</div>
+              <div className="info-value" style={{fontWeight: 'bold'}}>{chamado.tecnico_nome}</div>
             </div>
           )}
         </div>
