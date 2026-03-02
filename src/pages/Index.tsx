@@ -7,10 +7,12 @@ import { Plans } from '@/components/Plans';
 import { Differentials } from '@/components/Differentials';
 import { Contact } from '@/components/Contact';
 import { Footer } from '@/components/Footer';
+import { ABPopup } from '@/components/ABPopup';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <ABPopup />
       <Header />
       <main>
         <Hero />

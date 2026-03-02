@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Clock, CheckCircle, User } from 'lucide-react';
+import { ArrowRight, Shield, Clock, CheckCircle, User, UtensilsCrossed } from 'lucide-react';
 import logoBranco from '@/assets/logo-branco.png';
 
 const highlights = [{
@@ -76,6 +76,13 @@ export function Hero() {
               Fale Conosco Agora
               <ArrowRight className="h-5 w-5" />
             </a>
+            <Link 
+              to="/consultoria-ab" 
+              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-lg font-medium hover:bg-white/20 transition-all duration-200"
+            >
+              <UtensilsCrossed className="h-5 w-5" />
+              Consultoria para Bares & Restaurantes
+            </Link>
             <Link 
               to="/auth" 
               className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-lg font-medium hover:bg-white/20 transition-all duration-200"

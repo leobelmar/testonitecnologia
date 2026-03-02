@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/helpdesk/ProtectedRoute";
 
 // Pages - Site institucional
 import Index from "./pages/Index";
+import ConsultoriaAB from "./pages/ConsultoriaAB";
 import NotFound from "./pages/NotFound";
 
 // Pages - Sistema Help Desk
@@ -45,6 +46,7 @@ const App = () => (
           <Routes>
             {/* Site institucional */}
             <Route path="/" element={<Index />} />
+            <Route path="/consultoria-ab" element={<ConsultoriaAB />} />
 
             {/* Autenticação */}
             <Route path="/auth" element={<Auth />} />
