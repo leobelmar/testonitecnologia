@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, UtensilsCrossed, Hotel, TreePalm, Building2, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import logoBranco from '@/assets/logo-branco.png';
 
 const navLinks = [
@@ -17,7 +18,7 @@ export function Footer() {
   return (
     <footer className="bg-navy-deep text-white">
       <div className="container-width section-padding !py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
             <img src={logoBranco} alt="Testoni Tecnologia" className="h-10 w-auto mb-6" />
@@ -51,6 +52,50 @@ export function Footer() {
                   </a>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Gestão Especializada */}
+          <div>
+            <h4 className="text-lg font-semibold mb-6">Gestão Especializada</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/consultoria-ab"
+                  className="text-white/70 hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <UtensilsCrossed className="h-4 w-4" />
+                  Bares, Restaurantes e Baladas
+                </Link>
+              </li>
+              <li>
+                <span className="text-white/30 flex items-center gap-2 cursor-default">
+                  <Hotel className="h-4 w-4" />
+                  Hotéis e Resorts
+                  <span className="text-[10px] uppercase tracking-wider bg-white/10 px-1.5 py-0.5 rounded">em breve</span>
+                </span>
+              </li>
+              <li>
+                <span className="text-white/30 flex items-center gap-2 cursor-default">
+                  <TreePalm className="h-4 w-4" />
+                  Parques
+                  <span className="text-[10px] uppercase tracking-wider bg-white/10 px-1.5 py-0.5 rounded">em breve</span>
+                </span>
+              </li>
+              <li>
+                <span className="text-white/30 flex items-center gap-2 cursor-default">
+                  <Building2 className="h-4 w-4" />
+                  Construtoras
+                  <span className="text-[10px] uppercase tracking-wider bg-white/10 px-1.5 py-0.5 rounded">em breve</span>
+                </span>
+              </li>
+              <li>
+                <span className="text-white/30 flex items-center gap-2 cursor-default">
+                  <Home className="h-4 w-4" />
+                  Condomínios
+                  <span className="text-[10px] uppercase tracking-wider bg-white/10 px-1.5 py-0.5 rounded">em breve</span>
+                </span>
+              </li>
             </ul>
           </div>
 
