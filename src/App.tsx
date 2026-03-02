@@ -33,6 +33,8 @@ import ContratoDetalhes from "./pages/ContratoDetalhes";
 import Estoque from "./pages/Estoque";
 import Configuracoes from "./pages/Configuracoes";
 import PerfisPermissao from "./pages/PerfisPermissao";
+import Arquivos from "./pages/Arquivos";
+import DownloadPublico from "./pages/DownloadPublico";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,7 @@ const App = () => (
             {/* Site institucional */}
             <Route path="/" element={<Index />} />
             <Route path="/consultoria-ab" element={<ConsultoriaAB />} />
+            <Route path="/download/:token" element={<DownloadPublico />} />
 
             {/* Autenticação */}
             <Route path="/auth" element={<Auth />} />
@@ -72,6 +75,7 @@ const App = () => (
               <Route path="estoque" element={<ProtectedRoute modulo="estoque"><Estoque /></ProtectedRoute>} />
               <Route path="configuracoes" element={<ProtectedRoute modulo="configuracoes"><Configuracoes /></ProtectedRoute>} />
               <Route path="configuracoes/perfis" element={<ProtectedRoute modulo="configuracoes"><PerfisPermissao /></ProtectedRoute>} />
+              <Route path="arquivos" element={<ProtectedRoute modulo="arquivos"><Arquivos /></ProtectedRoute>} />
             </Route>
 
             {/* 404 */}

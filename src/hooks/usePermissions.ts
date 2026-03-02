@@ -16,7 +16,8 @@ export type ModuleName =
   | 'configuracoes'
   | 'usuarios'
   | 'auditoria'
-  | 'tecnicos';
+  | 'tecnicos'
+  | 'arquivos';
 
 export interface PerfilPermissao {
   id: string;
@@ -146,4 +147,5 @@ export const MODULOS_DISPONIVEIS: { key: ModuleName; label: string }[] = [
   { key: 'usuarios', label: 'Usuários' },
   { key: 'auditoria', label: 'Auditoria' },
   { key: 'tecnicos', label: 'Técnicos' },
+  { key: 'arquivos', label: 'Arquivos' },
 ];
