@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -139,7 +140,7 @@ export function PrintDialog({ data, trigger, externalOpen, onExternalOpenChange 
           <style>${styles}</style>
         </head>
         <body>
-          ${printContent.innerHTML.replace(/\{LOGO_SRC\}/g, logoDataUrl)}
+          ${DOMPurify.sanitize(printContent.innerHTML.replace(/\{LOGO_SRC\}/g, logoDataUrl), { ADD_TAGS: ['style'], ADD_ATTR: ['style'] })}
           <script>
             window.onload = function() {
               window.print();
