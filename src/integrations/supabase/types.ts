@@ -14,6 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
+      arquivos_compartilhados: {
+        Row: {
+          chamado_id: string | null
+          created_at: string
+          created_by: string
+          descricao: string | null
+          expira_em: string | null
+          id: string
+          limite_downloads: number | null
+          nome_arquivo: string
+          nome_original: string
+          status: string
+          storage_path: string
+          tamanho_bytes: number
+          tipo_mime: string | null
+          token: string
+          total_downloads: number
+          updated_at: string
+        }
+        Insert: {
+          chamado_id?: string | null
+          created_at?: string
+          created_by: string
+          descricao?: string | null
+          expira_em?: string | null
+          id?: string
+          limite_downloads?: number | null
+          nome_arquivo: string
+          nome_original: string
+          status?: string
+          storage_path: string
+          tamanho_bytes?: number
+          tipo_mime?: string | null
+          token: string
+          total_downloads?: number
+          updated_at?: string
+        }
+        Update: {
+          chamado_id?: string | null
+          created_at?: string
+          created_by?: string
+          descricao?: string | null
+          expira_em?: string | null
+          id?: string
+          limite_downloads?: number | null
+          nome_arquivo?: string
+          nome_original?: string
+          status?: string
+          storage_path?: string
+          tamanho_bytes?: number
+          tipo_mime?: string | null
+          token?: string
+          total_downloads?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arquivos_compartilhados_chamado_id_fkey"
+            columns: ["chamado_id"]
+            isOneToOne: false
+            referencedRelation: "chamados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      arquivos_downloads: {
+        Row: {
+          arquivo_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          arquivo_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          arquivo_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arquivos_downloads_arquivo_id_fkey"
+            columns: ["arquivo_id"]
+            isOneToOne: false
+            referencedRelation: "arquivos_compartilhados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           acao: string

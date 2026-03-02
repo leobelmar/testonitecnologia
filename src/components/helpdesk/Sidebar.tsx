@@ -18,6 +18,7 @@ import {
   Shield,
   ScrollText,
   Package,
+  FolderUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
   { title: 'Financeiro', href: '/app/financeiro', icon: DollarSign, modulo: 'financeiro', clienteVisible: true },
   { title: 'Contratos', href: '/app/contratos', icon: ScrollText, modulo: 'contratos', clienteVisible: true },
   { title: 'Estoque', href: '/app/estoque', icon: Package, modulo: 'estoque' },
+  { title: 'Arquivos', href: '/app/arquivos', icon: FolderUp, modulo: 'arquivos' },
   { title: 'Técnicos', href: '/app/tecnicos', icon: Wrench, modulo: 'tecnicos' },
   { title: 'Usuários', href: '/app/usuarios', icon: UserCog, modulo: 'usuarios' },
   { title: 'Auditoria', href: '/app/auditoria', icon: Shield, modulo: 'auditoria' },
