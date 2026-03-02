@@ -734,6 +734,13 @@ export type Database = {
             referencedRelation: "produtos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "movimentacoes_estoque_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ordens_servico: {
@@ -903,6 +910,13 @@ export type Database = {
             columns: ["produto_id"]
             isOneToOne: false
             referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "os_pecas_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1093,7 +1107,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      produtos_public: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          created_by: string | null
+          estoque_minimo: number | null
+          id: string | null
+          modelo: string | null
+          nome: string | null
+          quantidade: number | null
+          updated_at: string | null
+          venda: number | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          estoque_minimo?: number | null
+          id?: string | null
+          modelo?: string | null
+          nome?: string | null
+          quantidade?: number | null
+          updated_at?: string | null
+          venda?: number | null
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          estoque_minimo?: number | null
+          id?: string | null
+          modelo?: string | null
+          nome?: string | null
+          quantidade?: number | null
+          updated_at?: string | null
+          venda?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_access_chamado: {
