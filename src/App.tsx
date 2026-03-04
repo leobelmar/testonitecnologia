@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/helpdesk/ProtectedRoute";
 // Pages - Site institucional
 import Index from "./pages/Index";
 import ConsultoriaAB from "./pages/ConsultoriaAB";
+import ConsultoriaHotelaria from "./pages/ConsultoriaHotelaria";
 import NotFound from "./pages/NotFound";
 
 // Pages - Sistema Help Desk
@@ -49,6 +50,7 @@ const App = () => (
             {/* Site institucional */}
             <Route path="/" element={<Index />} />
             <Route path="/consultoria-ab" element={<ConsultoriaAB />} />
+            <Route path="/consultoria-hotelaria" element={<ConsultoriaHotelaria />} />
             <Route path="/download/:token" element={<DownloadPublico />} />
 
             {/* Autenticação */}
