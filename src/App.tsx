@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/helpdesk/ProtectedRoute";
 import Index from "./pages/Index";
 import ConsultoriaAB from "./pages/ConsultoriaAB";
 import ConsultoriaHotelaria from "./pages/ConsultoriaHotelaria";
+import ConsultoriaConstrutoras from "./pages/ConsultoriaConstrutoras";
 import NotFound from "./pages/NotFound";
 
 // Pages - Sistema Help Desk
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/consultoria-ab" element={<ConsultoriaAB />} />
             <Route path="/consultoria-hotelaria" element={<ConsultoriaHotelaria />} />
+            <Route path="/consultoria-construtoras" element={<ConsultoriaConstrutoras />} />
             <Route path="/download/:token" element={<DownloadPublico />} />
 
             {/* Autenticação */}
