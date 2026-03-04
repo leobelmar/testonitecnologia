@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, UtensilsCrossed, Hotel, TreePalm, Building2, Home, Store } from 'lucide-react';
+import { Phone, Mail, MapPin, UtensilsCrossed, Hotel, TreePalm, Building2, Home, Store, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logoBranco from '@/assets/logo-branco.png';
 
@@ -111,6 +111,15 @@ export function Footer() {
                 >
                   <Store className="h-4 w-4" />
                   Franquias e Shoppings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/desenvolvimento"
+                  className="text-white/70 hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <Code2 className="h-4 w-4" />
+                  Apps, Sistemas e Sites
                 </Link>
               </li>
             </ul>

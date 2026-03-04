@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, UtensilsCrossed, ArrowRight, Hotel, HardHat, Building2, FerrisWheel, Store } from 'lucide-react';
+import { X, UtensilsCrossed, ArrowRight, Hotel, HardHat, Building2, FerrisWheel, Store, Code2 } from 'lucide-react';
 
 const especialidades = [
   {
@@ -27,6 +27,11 @@ const especialidades = [
     icon: Store,
     label: 'Franquias e Shoppings',
     to: '/consultoria-franquias',
+  },
+  {
+    icon: Code2,
+    label: 'Apps, Sistemas e Sites',
+    to: '/desenvolvimento',
   },
 ];
 
