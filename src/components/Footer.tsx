@@ -78,11 +78,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <span className="text-white/30 flex items-center gap-2 cursor-default">
+                <Link
+                  to="/consultoria-parques"
+                  className="text-white/70 hover:text-white transition-colors flex items-center gap-2"
+                >
                   <TreePalm className="h-4 w-4" />
-                  Parques
-                  <span className="text-[10px] uppercase tracking-wider bg-white/10 px-1.5 py-0.5 rounded">em breve</span>
-                </span>
+                  Parques e Atrações
+                </Link>
               </li>
               <li>
                 <Link
