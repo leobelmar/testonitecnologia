@@ -91,8 +91,8 @@ export function ABPopup() {
           ))}
         </div>
 
-        <button onClick={dismiss} className="w-full mt-5 text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
-          Não, obrigado
+        <button onClick={dismiss} className="w-full mt-5 inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
+          Continuar para o site <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>
