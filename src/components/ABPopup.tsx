@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, UtensilsCrossed, ArrowRight, Hotel, HardHat, Building2, FerrisWheel } from 'lucide-react';
+import { X, UtensilsCrossed, ArrowRight, Hotel, HardHat, Building2, FerrisWheel, Store } from 'lucide-react';
 
 const especialidades = [
   {
@@ -22,6 +22,11 @@ const especialidades = [
     icon: FerrisWheel,
     label: 'Parques e Atrações',
     to: '/consultoria-parques',
+  },
+  {
+    icon: Store,
+    label: 'Franquias e Shoppings',
+    to: '/consultoria-franquias',
   },
 ];
 
