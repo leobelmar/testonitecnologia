@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/helpdesk/AppLayout";
 import { ProtectedRoute } from "@/components/helpdesk/ProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Pages - Site institucional
 import Index from "./pages/Index";
@@ -47,6 +48,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <Routes>
             {/* Site institucional */}
             <Route path="/" element={<Index />} />
