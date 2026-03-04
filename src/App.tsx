@@ -14,6 +14,7 @@ import ConsultoriaAB from "./pages/ConsultoriaAB";
 import ConsultoriaHotelaria from "./pages/ConsultoriaHotelaria";
 import ConsultoriaConstrutoras from "./pages/ConsultoriaConstrutoras";
 import ConsultoriaCondominios from "./pages/ConsultoriaCondominios";
+import ConsultoriaParques from "./pages/ConsultoriaParques";
 import NotFound from "./pages/NotFound";
 
 // Pages - Sistema Help Desk
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/consultoria-hotelaria" element={<ConsultoriaHotelaria />} />
             <Route path="/consultoria-construtoras" element={<ConsultoriaConstrutoras />} />
             <Route path="/consultoria-condominios" element={<ConsultoriaCondominios />} />
+            <Route path="/consultoria-parques" element={<ConsultoriaParques />} />
             <Route path="/download/:token" element={<DownloadPublico />} />
 
             {/* Autenticação */}
