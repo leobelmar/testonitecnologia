@@ -104,7 +104,7 @@ export default function ConsultoriaCondominios() {
                 <span className="text-white/70 text-sm ml-2">condomínios atendidos</span>
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/20">
-                <span className="text-3xl font-bold text-white">10</span>
+                <span className="text-3xl font-bold text-white">16</span>
                 <span className="text-white/70 text-sm ml-2">anos de experiência</span>
               </div>
             </div>
